@@ -10,14 +10,13 @@ void err_callback(int error, const char* desc);
 void event_log(const char* desc);
 void err_log(int error, const char* desc);
 void scroll_cb(GLFWwindow *win, double x_offset, double y_offset);
+void* prep_buff(BALL* balls,int num,int* size,int* stride);
 
 GLFWwindow* win_main =NULL;
 struct win_hw{
 	int h;
 	int w;
 }hw={1080,1080};
-
-
 
 int 
 main(void)
@@ -121,6 +120,7 @@ main(void)
 
 ////////input
 	glfwSetScrollCallback(win_main,scroll_cb);
+//////input
 
 	unsigned int u_tdt,u_hw;
 		u_tdt	=glGetUniformLocation(pid,"tdt");
@@ -142,9 +142,10 @@ main(void)
 		glUniform2i(u_hw,hw.w,hw.h);
 
 		///////update phy
-		///////prep data
-		///////modify buff
-		//////free buff
+		int size,stride;
+		void* buff=prep_buff(ball_buff,BALL_COUNT,&size,0);
+		glBufferSubData(GL_ARRAY_BUFFER,0,size,buff);
+		free(buff);buff=NULL;
 
 		glDrawInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0, BALL_COUNT);
 		glfwSwapBuffers(win_main);
@@ -178,7 +179,30 @@ event_log(const char* desc){
 	fprintf(stdout,"event:%s\n",desc);
 }
 
-void
+void*
+prep_buff(BALL** balls,int num,int* size,int* stride){
+	struct a{
+		mat4 transform;
+		vec4 color;
+		float radius;	};
+	*size=sizeof(struct a)*num;
+	if (!stride){*stride=sizeof(struct a)}
+	void* ret=malloc(*size);
+	assert(ret&&"malloc failed");
+	for(int i=0;i<num;++i){
+		mat4 trans;
+		vec3 y={ball[i]->pos[0],ball[i]->pos[1],0.0};
+		glm_translate_make(trans,y);
+		struct a x={
+			 trans
+			,balls[i]->color
+			,ball[i]->radius};
+		((*struct a)ret)[i]=a;
+	}//for
+	return ret;
+}//fn
+
+void////////////////////
 scroll_cb(GLFWwindow *win, double x_offset, double y_offset){
 	double zoom_factor=(zoom*y_offset);
 	if (zoom_factor<0) zoom_factor=2+zoom_factor;
