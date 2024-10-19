@@ -8,6 +8,9 @@ void fconstrain(BALL* a);
 void coll_dect(BALL* ball_buff);
 void iter_phy();
 void update_model();
+void genclick(GLFWwindow *win, double x, double y);///ic
+void genstream(int x,int y, float velx,float vely, float inc_rate);///ic
+void genblast(int x,int y, float velx, float vely, int num);///ic ///fix shader uv
 
 double t,dt;
 int BALL_COUNT=0;
@@ -70,9 +73,11 @@ void coll_dect(BALL* ball_buff){
 void iter_phy(){
 	int i;
 	for (i=0;i<BALL_COUNT;i++){
+		BALL a=*ball_buff[i];
+		a.acc[0]=0.0;
+		a.acc[1]=0.0;
 		for (int j=0;j<force_num;j++)
 			(*force_buff[j])(ball_buff[i]);
-		BALL a=*ball_buff[i];
 		a.vel[0]+=a.acc[0]*dt*0.5;
 		a.vel[1]+=a.acc[1]*dt*0.5;
 		a.pos[0]+=a.vel[0]*dt;
@@ -107,4 +112,4 @@ void fconstrain(BALL* a){
 void update_model(){
 	iter_phy()	;
 	coll_dect() ;
-}
+}//fn

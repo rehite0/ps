@@ -2,7 +2,8 @@
 
 precision highp float;
 
-uniform vec2 u_resolv;
+uniform vec2 hw;
+uniform vec2 tdt;
 in vec4 oc_rgb;
 in float orad;
 
@@ -10,8 +11,8 @@ out vec4 out_color;
 
 
 void main(){
-    vec2 ab=uv.xy*2.0-1.0;
-    float d=1.0-length(ab);
+	vec2 uv=(gl_FragCoord/hw.yx)*2.0-1.0;
+    float d=1.0-length(uv);
     d=smoothstep(0.0,0.01,d);
     out_color.rgba=oc_rgb*vec4(d);
 
