@@ -33,20 +33,27 @@ main(void)
 
 	if (glewInit() !=GLEW_OK){err_log(1,"glewinit failed");}
 
-	GLuint vao,vbo,ibo,pid;
+	GLuint vao,vbo,pid;
 	
-////////load data
+//load data
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
-		glGenBuffers(1, &ibo);
+
+		int size,stride;
+		void* buff=prep_buff(ball_buff,BALL_COUNT,&size,&stride);
 
 			glBindVertexArray(vao);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER,sizeof(vbo_data),vbo_data,GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);//pos
-			glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,0);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(ibo_data),ibo_data,GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
+			glEnableVertexAttribArray(0);//pos_transform
+			glVertexAttribPointer(0,16,GL_FLOAT,GL_FALSE,stride,0);
+			glEnableVertexAttribArray(1);//color
+			glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,stride,16*sizeof(float));
+			glEnableVertexAttribArray(2);//radius
+			glVertexAttribPointer(0,1,GL_FLOAT,GL_FALSE,stride,20*sizeof(float));
+			glVertexAttribDivisor(0,1);
+			glVertexAttribDivisor(1,1);
+			glVertexAttribDivisor(2,1);
 //load data
 
 //load shader
@@ -142,9 +149,9 @@ main(void)
 		glUniform2i(u_hw,hw.w,hw.h);
 
 		///////update phy
-		int size,stride;
+		int size;
 		void* buff=prep_buff(ball_buff,BALL_COUNT,&size,0);
-		glBufferSubData(GL_ARRAY_BUFFER,0,size,buff);
+		glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
 		free(buff);buff=NULL;
 
 		glDrawInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0, BALL_COUNT);
