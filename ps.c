@@ -36,6 +36,7 @@ main(void)
 	GLuint vao,vbo,pid;
 	
 //load data
+{
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
 
@@ -45,6 +46,7 @@ main(void)
 			glBindVertexArray(vao);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
+			free(buff)
 			glEnableVertexAttribArray(0);//pos_transform
 			glVertexAttribPointer(0,16,GL_FLOAT,GL_FALSE,stride,0);
 			glEnableVertexAttribArray(1);//color
@@ -54,6 +56,7 @@ main(void)
 			glVertexAttribDivisor(0,1);
 			glVertexAttribDivisor(1,1);
 			glVertexAttribDivisor(2,1);
+}
 //load data
 
 //load shader
@@ -145,7 +148,7 @@ main(void)
 		glBindVertexArray(vao);
 		
 		dt=glfwGetTime()-t;t=glfwGetTime();
-		glUniform2f(u_time_v,t,dt);
+		glUniform2f(u_tdt,t,dt);
 		glUniform2i(u_hw,hw.w,hw.h);
 
 		///////update phy

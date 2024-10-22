@@ -12,6 +12,9 @@ void genclick(GLFWwindow *win, double x, double y);///ic
 void genstream(int x,int y, float velx,float vely, float inc_rate);///ic
 void genblast(int x,int y, float velx, float vely, int num);///ic ///fix shader uv
 
+//colldect use a.,b.
+//wall constrain does not consider for wall
+
 double t,dt;
 int BALL_COUNT=0;
 
@@ -23,8 +26,7 @@ typedef struct _BALL{
 
 }BALL;
 
-BALL* ball_buff;
-float* ball_pos_buff;
+BALL** ball_buff;
 
 #define num_forces 2
 void (*force_buffer[num_forces])(BALL*)={fgravity,fconstrain};
@@ -73,15 +75,15 @@ void coll_dect(BALL* ball_buff){
 void iter_phy(){
 	int i;
 	for (i=0;i<BALL_COUNT;i++){
-		BALL a=*ball_buff[i];
-		a.acc[0]=0.0;
-		a.acc[1]=0.0;
+		ball_buff[i]
+		ball_buff[i]->acc[0]=0.0;
+		ball_buff[i]->acc[1]=0.0;
 		for (int j=0;j<force_num;j++)
 			(*force_buff[j])(ball_buff[i]);
-		a.vel[0]+=a.acc[0]*dt*0.5;
-		a.vel[1]+=a.acc[1]*dt*0.5;
-		a.pos[0]+=a.vel[0]*dt;
-		a.pos[1]+=a.vel[1]*dt;
+		ball_buff[i]->vel[0]+=ball_buff[i]->acc[0]*dt*0.5;
+		ball_buff[i]->vel[1]+=ball_buff[i]->acc[1]*dt*0.5;
+		ball_buff[i]->pos[0]+=ball_buff[i]->vel[0]*dt;
+		ball_buff[i]->pos[1]+=ball_buff[i]->vel[1]*dt;
 		
 	}//for i
 }//fn
