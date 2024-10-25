@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
+#include <cglm/cglm.h>
 #include "pse_verlet_like.h"
 
 
@@ -12,7 +14,7 @@ void event_log(const char* desc);
 void err_log(int error, const char* desc);
 void scroll_cb(GLFWwindow *win, double x_offset, double y_offset);
 void mouse_click_cb(GLFWwindow* win, int button, int action, int mods);
-void* prep_buff(BALL* balls,int num,int* size,int* stride);
+void* prep_buff(BALL** balls,int num,int* size,int* stride);
 
 GLFWwindow* win_main =NULL;
 struct win_hw{
@@ -48,13 +50,13 @@ main(void)
 			glBindVertexArray(vao);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
-			free(buff)
+			free(buff);
 			glEnableVertexAttribArray(0);//pos_transform
 			glVertexAttribPointer(0,16,GL_FLOAT,GL_FALSE,stride,0);
 			glEnableVertexAttribArray(1);//color
-			glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,stride,16*sizeof(float));
+			glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,stride,(void*)(16*sizeof(float)));
 			glEnableVertexAttribArray(2);//radius
-			glVertexAttribPointer(0,1,GL_FLOAT,GL_FALSE,stride,20*sizeof(float));
+			glVertexAttribPointer(0,1,GL_FLOAT,GL_FALSE,stride,(void*)(20*sizeof(float)));
 			glVertexAttribDivisor(0,1);
 			glVertexAttribDivisor(1,1);
 			glVertexAttribDivisor(2,1);
@@ -162,7 +164,7 @@ main(void)
 		glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
 		free(buff);buff=NULL;
 
-		glDrawInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0, BALL_COUNT);
+		glDrawArraysInstanced(GL_TRIANGLES, 6, 0, BALL_COUNT);
 		glfwSwapBuffers(win_main);
 		glfwPollEvents();
 	}//while
