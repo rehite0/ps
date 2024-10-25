@@ -3,17 +3,19 @@
 #define mod(x)  (x>0)? x:-1*x
 
 //fn prototype
-void fgravity(BALL* a);
-void fconstrain(BALL* a);
-void coll_dect(BALL* ball_buff);
+void fgravity( BALL* a);
+void fconstrain( BALL* a);
+void coll_dect( BALL* ball_buff);
 void iter_phy();
 void update_model();
-void genclick(GLFWwindow *win, double x, double y);///ic
-void genstream(int x,int y, float velx,float vely, float inc_rate);///ic
-void genblast(int x,int y, float velx, float vely, int num);///ic ///fix shader uv
+void genclick(double x, double y);///ic
+//void genstream(int x, int y, float velx, float vely, float inc_rate);
+//void genblast(int x, int y, float velx, float vely, int num);
+void free_model();
 
+//fix shader uv
 //colldect use a.,b.
-//wall constrain does not consider for wall
+//wall constrain does not consider for rad
 
 double t,dt;
 int BALL_COUNT=0;
@@ -51,28 +53,29 @@ void (*force_buffer[num_forces])(BALL*)={fgravity,fconstrain};
  *2 cos m is |b/h| and cos n is |p/h|
  *  velocity after collision
  */
-void coll_dect(BALL* ball_buff){
+void
+coll_dect(BALL* ball_buff){
 	int i,j;
 	for (i=0;i<BALL_COUNT;i++){
 		for (j=0,j<BALL_COUNT,j++){
-			BALL a,b;
-			a=*ball_buff[i];
-			b=*ball_buff[j];
+			BALL* a=ball_buff[i];
+			BALL* b=ball_buff[j];
 
-			double aofcol[2]={a.pos[0]-b.pos[0] , a.pos[1]-b.pos[1]};	//*1
+			double aofcol[2]={a->pos[0]-b->pos[0], a->pos[1]-b->pos[1]};	//*1
 
-			if ( abs2(aofcol)<(a.rad+b.rad)*(a.rad+b.rad) && i!=j ){
-				double p=aofcol[0],b=aofcol[1],h=sqrt(abs2(aofcol));
-				a.vel[0]=a.vel[0]-2*(sqrt(abs2(a.vel))*mod(p/h));		//*2
-				b.vel[0]=b.vel[0]-2*(sqrt(abs2(b.vel))*mod(b/h));
-				a.vel[1]=a.vel[1]-2*(sqrt(abs2(a.vel))*mod(b/h));
-				b.vel[1]=b.vel[1]-2*(sqrt(abs2(b.vel))*mod(p/h));
+			if ( abs2(aofcol)<(a->rad+b->rad)*(a->rad+b->rad) && i!=j ){
+				double p=aofcol[0],ba=aofcol[1],h=sqrt(abs2(aofcol));
+				a.vel[0]=a->vel[0]-2*(sqrt(abs2(a->vel))*mod(p/h));		//*2
+				b.vel[0]=b->vel[0]-2*(sqrt(abs2(b->vel))*mod(ba/h));
+				a.vel[1]=a->vel[1]-2*(sqrt(abs2(a->vel))*mod(ba/h));
+				b.vel[1]=b->vel[1]-2*(sqrt(abs2(b->vel))*mod(p/h));
 			}//if
 		}//for j
 	}//for i
 }//fn
 
-void iter_phy(){
+void
+iter_phy(){
 	int i;
 	for (i=0;i<BALL_COUNT;i++){
 		ball_buff[i]
@@ -88,11 +91,13 @@ void iter_phy(){
 	}//for i
 }//fn
 
-void fgravity(BALL* a){
+void
+fgravity(BALL* a){
 	a->acc[1]-=9.8;
 }//fn
 
-void fconstrain(BALL* a){
+void
+fconstrain(BALL* a){
 	if (a->pos[0] >1){
 		a->pos[0]=1;
 		a->vel[0]=0;
@@ -110,8 +115,35 @@ void fconstrain(BALL* a){
 		a->vel[1]=0;
 	}
 }//fn
+void
+genclick(float x, float y){
+	static BALL ball_bp={
+		0.0, 0.0,
+		0.0, 0.0,
+		0.0, 0.0,
+		0.05 };
+	BALL *a=malloc(sizeof(BALL));
+	assert(a && "null return by malloc!");
+	*a=ball_bp;
+	a->pos[0]=x;
+	a->pos[1]=y;
+	ball_buff=realloc(ball_buff,sizeof(BALL*)*(++BALL_COUNT));
+	assert(ball_buff &&"null return by realloc!")
+	ball_buff[BALL_COUNT]=a;
+}//fn
 
-void update_model(){
+void
+free_model(){
+	for (int i=0;i<BALL_COUNT;++i){
+		free(ball_buff[i]);
+	}//for i
+
+	free(ball_buff);
+	ball_buff=NULL;
+	BALL_COUNT=0;
+}
+void
+update_model(){
 	iter_phy()	;
 	coll_dect() ;
 }//fn

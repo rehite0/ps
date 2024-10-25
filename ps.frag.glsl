@@ -4,6 +4,7 @@ precision highp float;
 
 uniform vec2 hw;
 uniform vec2 tdt;
+:
 in vec4 oc_rgb;
 in float orad;
 

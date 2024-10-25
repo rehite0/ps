@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "pse_verlet_like.h"
 
 
@@ -10,6 +11,7 @@ void err_callback(int error, const char* desc);
 void event_log(const char* desc);
 void err_log(int error, const char* desc);
 void scroll_cb(GLFWwindow *win, double x_offset, double y_offset);
+void mouse_click_cb(GLFWwindow* win, int button, int action, int mods);
 void* prep_buff(BALL* balls,int num,int* size,int* stride);
 
 GLFWwindow* win_main =NULL;
@@ -128,9 +130,12 @@ main(void)
 		free(bvs);free(bfs);
 //load shaderm
 
-////////input
-	glfwSetScrollCallback(win_main,scroll_cb);
-//////input
+//input callback
+	//glfwSetScrollCallback(win_main, scroll_cb);
+	//glfwSetCursorPosCallback(win_main, cursor_position_callback);
+	//glfwSetCursorEnterCallback(window, cursor_enter_callback);
+	glfwSetMouseButtonCallback(win_main, mouse_click_cb);
+//input
 
 	unsigned int u_tdt,u_hw;
 		u_tdt	=glGetUniformLocation(pid,"tdt");
@@ -151,7 +156,7 @@ main(void)
 		glUniform2f(u_tdt,t,dt);
 		glUniform2i(u_hw,hw.w,hw.h);
 
-		///////update phy
+		update_model();
 		int size;
 		void* buff=prep_buff(ball_buff,BALL_COUNT,&size,0);
 		glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
@@ -212,23 +217,17 @@ prep_buff(BALL** balls,int num,int* size,int* stride){
 	return ret;
 }//fn
 
-void////////////////////
+void
 scroll_cb(GLFWwindow *win, double x_offset, double y_offset){
-	double zoom_factor=(zoom*y_offset);
-	if (zoom_factor<0) zoom_factor=2+zoom_factor;
-	double diff_x=(cp.x-cp.x_)*zoom_factor/2.0;
-	double diff_y=(cp.y-cp.y_)*zoom_factor/2.0;
-	double cx=540.0,cy=540.0;
-	glfwGetCursorPos(win_main,&cx,&cy);
-	glfwSetCursorPos(win_main,hw.w/2,hw.h/2);
-	double cix,ciy;
-	cix=cp.x_+(((double)hw.w-cx)/hw.w)*(cp.x - cp.x_);
-	ciy=cp.y_+(cy/hw.h)*(cp.y - cp.y_);
-
-	cp.x =(float)(cix+diff_x);
-	cp.x_=(float)(cix-diff_x);
-	cp.y =(float)(ciy+diff_y);
-	cp.y_=(float)(ciy-diff_y);
-	if(max_iter>10||y_offset>0)
-		max_iter+=4*(int)y_offset;
+	//not used
+	(void*)0;
 }
+void
+mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
+	if (button==GLFW_MOUSE_BUTTON_LEFT &&
+		action==GLFW_RELEASED){
+		double xpos,ypos;
+		glfwGetCursorPos(win,xpos,ypos);
+		genclick((float)xpos,(float)ypos);
+	}//if
+}//fn

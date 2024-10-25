@@ -1,4 +1,4 @@
-#version 450@
+#version 450
 layout(location=0) in vec2 pos;
 layout(location=1) in vec4 c_rgb;
 layout(location=3) in float rad;
@@ -18,7 +18,6 @@ const mat4 ptrans//ic
 void main(){
 	gl_Position=ptrans*vec4(vert[idx[gl_VertexID]],1.0);
 	oc_rgb=c_rgb;
-	opos=pos;
 	orad=rad;
 }
 
