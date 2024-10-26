@@ -24,15 +24,15 @@ void genclick(float x, float y);
 void free_model();
 
 //fix shader uv
-//colldect use a.,b.
 //wall constrain does not consider for rad
+//pixel to ndc macro
 
 //globle var
 double t,dt;
 int BALL_COUNT=0;
 BALL** ball_buff=NULL;
-#define force_num 2
-void (*force_buff[force_num])(BALL*)={fgravity,fconstrain};
+#define force_num 0
+void (*force_buff[force_num])(BALL*);//={fgravity,fconstrain};
 
 /*collision physics
  * <   n'+
@@ -78,7 +78,7 @@ coll_dect(){
 void
 iter_phy(){
 	int i;
-	for (i=0;i<BALL_COUNT;i++){
+	for (i=0;i<BALL_COUNT;++i){
 		ball_buff[i]->acc[0]=0.0;
 		ball_buff[i]->acc[1]=0.0;
 		for (int j=0;j<force_num;j++)
@@ -87,7 +87,6 @@ iter_phy(){
 		ball_buff[i]->vel[1]+=ball_buff[i]->acc[1]*dt*0.5;
 		ball_buff[i]->pos[0]+=ball_buff[i]->vel[0]*dt;
 		ball_buff[i]->pos[1]+=ball_buff[i]->vel[1]*dt;
-		
 	}//for i
 }//fn
 
@@ -121,16 +120,16 @@ genclick(float x, float y){
 		{0.0, 0.0},
 		{0.0, 0.0},
 		{0.0, 0.0},
-		{0.0, 0.0, 0.0, 0.0},
-		0.05 };
-	BALL *a=malloc(sizeof(BALL));
-	assert(a && "null return by malloc!");
+		{0.0, 0.0, 1.0, 1.0},
+		0.15 };
+	BALL* a=malloc(sizeof(BALL));
+	assert(a && "malloc failed");
 	*a=ball_bp;
-	a->pos[0]=x;
-	a->pos[1]=y;
 	ball_buff=realloc(ball_buff,sizeof(BALL*)*(++BALL_COUNT));
 	assert(ball_buff &&"null return by realloc!");
-	ball_buff[BALL_COUNT]=a;
+	ball_buff[BALL_COUNT-1]=a;
+	ball_buff[BALL_COUNT-1]->pos[0]=x;
+	ball_buff[BALL_COUNT-1]->pos[1]=y;
 }//fn
 
 void
@@ -145,6 +144,7 @@ free_model(){
 }
 void
 update_model(){
-	iter_phy()	;
-	coll_dect() ;
+	(void*)0;
+///////////	iter_phy()	;
+////////////////////	coll_dect() ;
 }//fn
