@@ -130,7 +130,7 @@ main(void)
 		glUseProgram(pid);
 
 		free(bvs);free(bfs);
-//load shaderm
+//load shader
 
 //input callback
 	//glfwSetScrollCallback(win_main, scroll_cb);
@@ -203,19 +203,27 @@ prep_buff(BALL** balls,int num,int* size,int* stride){
 		vec4 color;
 		float radius;	};
 	*size=sizeof(struct a)*num;
-	if (!stride){*stride=sizeof(struct a)}
+	if (!stride){*stride=sizeof(struct a);}
 	void* ret=malloc(*size);
 	assert(ret&&"malloc failed");
 	for(int i=0;i<num;++i){
 		mat4 trans;
-		vec3 y={ball[i]->pos[0],ball[i]->pos[1],0.0};
+		vec3 y={balls[i]->pos[0],balls[i]->pos[1],0.0};
 		glm_translate_make(trans,y);
 		struct a x={
-			 trans
-			,balls[i]->color
-			,ball[i]->radius};
-		((*struct a)ret)[i]=a;
-	}//for
+			{{	trans[0][0],	trans[0][1],	trans[0][2],	trans[0][3]	}
+			,{	trans[1][0],	trans[1][1],	trans[1][2],	trans[1][3]	}
+			,{	trans[2][0],	trans[2][1],	trans[2][2],	trans[2][3]	}
+			,{	trans[3][0],	trans[3][1],	trans[3][2],	trans[3][3]	}
+			}
+			,{	balls[i]->color[0],
+				balls[i]->color[1],
+				balls[i]->color[2],
+				balls[i]->color[3]
+			}
+			,balls[i]->rad};
+		((struct a *)ret)[i]=x;
+	}//for i
 	return ret;
 }//fn
 
@@ -227,9 +235,9 @@ scroll_cb(GLFWwindow *win, double x_offset, double y_offset){
 void
 mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
 	if (button==GLFW_MOUSE_BUTTON_LEFT &&
-		action==GLFW_RELEASED){
+		action==GLFW_RELEASE){
 		double xpos,ypos;
-		glfwGetCursorPos(win,xpos,ypos);
+		glfwGetCursorPos(win,&xpos,&ypos);
 		genclick((float)xpos,(float)ypos);
 	}//if
 }//fn
