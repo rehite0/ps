@@ -9,8 +9,8 @@
 //#define CGLM_DEFINE_PRINTS
 #include <cglm/cglm.h>
 //#include <cglm/io.h>
-#define d(a) fprintf(stdout,"this is bp (" #a ")\n");
-#include "pse_verlet_like.h"
+//#define d(a) fprintf(stdout,"this is bp (" #a ")\n");
+#include "pse_verlet.h"
 
 
 void err_callback(int error, const char* desc);
@@ -144,7 +144,8 @@ main(void)
 		}
 
 		glUseProgram(pid);
-
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 		free(bvs);free(bfs);
 //load shader
 
@@ -172,7 +173,7 @@ main(void)
 		
 		dt=glfwGetTime()-t;t=glfwGetTime();
 		glUniform2f(u_tdt,t,dt);
-		glUniform2i(u_hw,hw.w,hw.h);
+		glUniform2f(u_hw,(float)hw.w,(float)hw.h);
 
 		update_model();
 		int size;
@@ -187,7 +188,7 @@ main(void)
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, BALL_COUNT);
 		glfwSwapBuffers(win_main);
 		glfwPollEvents();
-
+		++frameno;
 	}//while
 
 	//clean up
@@ -258,6 +259,9 @@ mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
 		double xpos,ypos;
 		glfwGetCursorPos(win,&xpos,&ypos);
 		genclick((float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
-				,(float) ( (ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0        );
+				,(float) ( (ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0
+				,(float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
+				,(float) ( (((ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0)-0.002)
+      );
 	}//if
 }//fn
