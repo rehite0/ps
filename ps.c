@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <unistd.h>
+#include <unistd.h>
 #include <assert.h>
 #include <math.h>
 //#define CGLM_DEFINE_PRINTS
@@ -240,7 +240,6 @@ prep_buff(BALL** balls,int num,int* size,int* stride){
 		x.color[2]=balls[i]->color[2];
 		x.color[3]=balls[i]->color[3];
 		x.radius=balls[i]->rad;
-		mat4 trans;
 		glm_translate_make(x.trans,y);
 		((struct a *)ret)[i]=x;
 	}//for i
@@ -260,8 +259,6 @@ mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
 		glfwGetCursorPos(win,&xpos,&ypos);
 		genclick((float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
 				,(float) ( (ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0
-				,(float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
-				,(float) ( (((ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0)-0.002)
-      );
+				,0.0,0.05	);
 	}//if
 }//fn

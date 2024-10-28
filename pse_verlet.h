@@ -1,6 +1,8 @@
 //0-x && 1-y
 #define abs2(o) (o[0]*o[0] + o[1]*o[1])
 #define mod(x)  ((x>0)? x:-1*x)
+#define vtop(v,p) (p-v*fdt)
+#define ptov(pp,p) ((p-pp)/fdt)
 
 //types
 typedef struct _BALL{
@@ -18,7 +20,7 @@ void fconstrain( BALL* a);
 void coll_dect();
 void iter_phy();
 void update_model();
-void genclick(float x, float y, float px, float py);
+void genclick(float x, float y, float vx, float vy);
 //void genblast(int x, int y, float velx, float vely, int num);
 void free_model();
 
@@ -27,7 +29,7 @@ void free_model();
 //pixel to ndc macro
 
 //globle var
-double t,dt;
+double t,dt,fdt=1.0/60.0;
 unsigned long long int frameno=0;
 int BALL_COUNT=0;
 BALL** ball_buff=NULL;
@@ -65,11 +67,7 @@ void
 iter_phy(){
 	int i;
 	for (i=0;i<BALL_COUNT;++i){
-		ball_buff[i]->acc[0]=0.0;
-		ball_buff[i]->acc[1]=0.0;
-		for (int j=0;j<force_num;j++)
-			(*force_buff[j])(ball_buff[i]);
-
+			
 		float px=ball_buff[i]->ppos[0],py=ball_buff[i]->ppos[1];
 		ball_buff[i]->ppos[0]=ball_buff[i]->pos[0];
 		ball_buff[i]->ppos[1]=ball_buff[i]->pos[1];
@@ -77,11 +75,16 @@ iter_phy(){
 		ball_buff[i]->pos[0]
 			=ball_buff[i]->pos[0]*2.0
 			-px
-			+ball_buff[i]->acc[0]*dt*dt;
+			+ball_buff[i]->acc[0]*fdt*fdt;
 		ball_buff[i]->pos[1]
 			=ball_buff[i]->pos[1]*2.0
 			-py
-			+ball_buff[i]->acc[1]*dt*dt;
+			+ball_buff[i]->acc[1]*fdt*fdt;
+	
+		ball_buff[i]->acc[0]=0.0;
+		ball_buff[i]->acc[1]=0.0;
+		for (int j=0;j<force_num;j++)
+			(*force_buff[j])(ball_buff[i]);
 	}//for i
 }//fn
 
@@ -92,27 +95,27 @@ fgravity(BALL* a){
 
 void
 fconstrain(BALL* a){
-	if (a->pos[0]+a->rad >1){
-		a->pos[0]=0.99-a->rad;
+	if (a->pos[0]+a->rad >1.0){
+		a->pos[0]=1.0-a->rad;
 	}
-	if (a->pos[0]-a->rad <-1){
-		a->pos[0]=-0.99+a->rad;
+	if (a->pos[0]-a->rad <-1.0){
+		a->pos[0]=-1.0+a->rad;
 	}
-	if (a->pos[1]+a->rad >1){
-		a->pos[1]=0.99-a->rad;
+	if (a->pos[1]+a->rad >1.0){
+		a->pos[1]=1.0-a->rad;
 	}
-	if (a->pos[1]-a->rad <-1){
-		a->pos[1]=-0.99+a->rad;
+	if (a->pos[1]-a->rad <-1.0){
+		a->pos[1]=-1.0+a->rad;
 	}
 }//fn
 void
-genclick(float x, float y, float px, float py){
+genclick(float x, float y, float vx, float vy){
 	static BALL ball_bp={
 		{0.0, 0.0},
 		{0.0, 0.0},
 		{0.0, 0.0},
-		{1.0, 1.0, 0.0, 1.0},
-		0.03 };
+		{1.0, 0.5, 0.0, 1.0},
+		0.01 };
 	BALL* a=malloc(sizeof(BALL));
 	assert(a && "malloc failed");
 	*a=ball_bp;
@@ -121,8 +124,8 @@ genclick(float x, float y, float px, float py){
 	ball_buff[BALL_COUNT-1]=a;
 	ball_buff[BALL_COUNT-1]->pos[0]=x;
 	ball_buff[BALL_COUNT-1]->pos[1]=y;
-	ball_buff[BALL_COUNT-1]->ppos[0]=px;
-	ball_buff[BALL_COUNT-1]->ppos[1]=py;
+	ball_buff[BALL_COUNT-1]->ppos[0]=vtop(vx,x);
+	ball_buff[BALL_COUNT-1]->ppos[1]=vtop(vy,y);
 }//fn
 
 void
@@ -137,14 +140,25 @@ free_model(){
 }
 void
 update_model(){
-	if (frameno%10==0) genclick(-0.95,0.95,-0.96,0.96);
+	if (frameno%10==0){
+		float sx=-1.0,
+			  sy=1.0-0.01,
+			  dy=2*0.01,
+			  vx=0.1,
+			  vy=-0.1;
 
-	double rdt=dt;
-	int substep=5;
-	dt=dt/substep;
+		genclick(sx	,sy		, vx	, vy   	);
+		genclick(sx	,sy-dy	, vx	, vy*2	);
+		genclick(sx	,sy-2*dy, vx	, vy*3	);
+		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
+	}
+	//sleep(1);
+	double rdt=fdt;
+	int substep=8;
+	fdt=fdt/substep;
 	for (int i=0;i<substep;++i){
 		iter_phy()	;
 		coll_dect() ;
 	}
-	dt=rdt;
+	fdt=rdt;
 }//fn
