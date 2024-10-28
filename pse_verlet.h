@@ -16,6 +16,7 @@ typedef struct _BALL{
 
 //fn prototype
 void fgravity( BALL* a);
+void fcentergrav( BALL* a);
 void fconstrain( BALL* a);
 void coll_dect();
 void iter_phy();
@@ -24,10 +25,6 @@ void genclick(float x, float y, float vx, float vy);
 //void genblast(int x, int y, float velx, float vely, int num);
 void free_model();
 
-//fix shader uv
-//wall constrain does not consider for rad
-//pixel to ndc macro
-
 //globle var
 double t,dt,fdt=1.0/60.0;
 unsigned long long int frameno=0;
@@ -35,7 +32,7 @@ int BALL_COUNT=0;
 BALL** ball_buff=NULL;
 
 #define force_num 2
-void (*force_buff[force_num])(BALL*)={fgravity,fconstrain};
+void (*force_buff[force_num])(BALL*)={fcentergrav,fconstrain};
 
 void
 coll_dect(){
@@ -94,6 +91,12 @@ fgravity(BALL* a){
 }//fn
 
 void
+fcentergrav( BALL* a){
+	float pv=sqrt(abs2(a->pos));
+	a->acc[0]-=a->pos[0]*3.0/pv;
+	a->acc[1]-=a->pos[1]*3.0/pv;
+}//fn
+void
 fconstrain(BALL* a){
 	if (a->pos[0]+a->rad >1.0){
 		a->pos[0]=1.0-a->rad;
@@ -147,9 +150,9 @@ update_model(){
 			  vx=0.1,
 			  vy=-0.1;
 
-		genclick(sx	,sy		, vx	, vy   	);
-		genclick(sx	,sy-dy	, vx	, vy*2	);
-		genclick(sx	,sy-2*dy, vx	, vy*3	);
+	//	genclick(sx	,sy		, vx	, vy   	);
+	//	genclick(sx	,sy-dy	, vx	, vy*2	);
+	//	genclick(sx	,sy-2*dy, vx	, vy*3	);
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
 	}
 	//sleep(1);
