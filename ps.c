@@ -19,6 +19,7 @@ void err_log(int error, const char* desc);
 void scroll_cb(GLFWwindow *win, double x_offset, double y_offset);
 void mouse_click_cb(GLFWwindow* win, int button, int action, int mods);
 void* prep_buff(BALL** balls,int num,int* size,int* stride);
+void model_setup();
 
 GLFWwindow* win_main =NULL;
 struct win_hw{
@@ -149,6 +150,8 @@ main(void)
 		free(bvs);free(bfs);
 //load shader
 
+		model_setup();
+
 //input callback
 	//glfwSetScrollCallback(win_main, scroll_cb);
 	//glfwSetCursorPosCallback(win_main, cursor_position_callback);
@@ -174,6 +177,11 @@ main(void)
 		dt=glfwGetTime()-t;t=glfwGetTime();
 		glUniform2f(u_tdt,t,dt);
 		glUniform2f(u_hw,(float)hw.w,(float)hw.h);
+		
+		double mx,my;
+		glfwGetCursorPos(win_main,&mx,&my);
+		mouse_ball->pos[0]=(float)(mx/hw.w)*2.0-1.0;
+		mouse_ball->pos[1]=(float)(my/hw.h)*-2.0+1.0;
 
 		update_model();
 		int size;
@@ -219,6 +227,22 @@ event_log(const char* desc){
 	fprintf(stdout,"event:%s\n",desc);
 }
 
+void
+model_setup(){
+	//mouse ball setup
+	BALL* a=malloc(sizeof(BALL));
+	assert(a &&"malloc failed");
+	ball_buff=realloc(ball_buff,sizeof(BALL*)*(++BALL_COUNT));
+	assert(ball_buff && "realloc failed");
+	a->pos[0]=0.0;		a->pos[1]=0.0;
+	a->ppos[0]=0.0;		a->ppos[1]=0.0;
+	a->acc[0]=0.0;		a->acc[1]=0.0;
+	a->color[0]=0.5;	a->color[1]=0.0;	a->color[2]=0.0;	a->color[3]=1.0;
+	a->rad=0.03;		a->flag=NO_FORCE|NO_CONSTRAIN|NO_MOVE|NO_COLLISION|NO_DISPLAY;
+	ball_buff[BALL_COUNT-1]=a;
+	mouse_ball=a;
+}//fn
+
 void*
 prep_buff(BALL** balls,int num,int* size,int* stride){
 	struct a{
@@ -232,6 +256,8 @@ prep_buff(BALL** balls,int num,int* size,int* stride){
 	void* ret=malloc(*size);
 	assert(ret&&"malloc failed");
 	for(int i=0;i<num;++i){
+		if (ckflg(balls[i]->flag,NO_DISPLAY)) continue ;
+
 		vec3 y={balls[i]->pos[0],balls[i]->pos[1],0.0};
 		
 		struct a x;
@@ -260,5 +286,13 @@ mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
 		genclick((float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
 				,(float) ( (ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0
 				,0.0,0.05	);
+	}//if
+	if (button==GLFW_MOUSE_BUTTON_RIGHT){
+		assert(mouse_ball && "mouse ball is not present");
+		if (action==GLFW_RELEASE)
+			mouse_ball->flag=mouse_ball->flag|NO_DISPLAY|NO_COLLISION;
+		if (action==GLFW_PRESS)
+			mouse_ball->flag=mouse_ball->flag&(~NO_DISPLAY)&(~NO_COLLISION);
+
 	}//if
 }//fn

@@ -41,6 +41,8 @@ unsigned long long int frameno=0;
 int BALL_COUNT=0;
 BALL** ball_buff=NULL;
 
+BALL* mouse_ball=NULL;
+
 #define force_num 2
 void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
 
@@ -77,6 +79,7 @@ void
 iter_phy(){
 	int i;
 	for (i=0;i<BALL_COUNT;++i){
+		if (ckflg(ball_buff[i]->flag,NO_MOVE)) continue;
 			
 		float px=ball_buff[i]->ppos[0],py=ball_buff[i]->ppos[1];
 		ball_buff[i]->ppos[0]=ball_buff[i]->pos[0];
@@ -93,6 +96,8 @@ iter_phy(){
 	
 		ball_buff[i]->acc[0]=0.0;
 		ball_buff[i]->acc[1]=0.0;
+
+		if (ckflg(ball_buff[i]->flag,NO_FORCE)) continue;
 		for (int j=0;j<force_num;j++)
 			(*force_buff[j])(ball_buff[i]);
 	}//for i
@@ -100,7 +105,7 @@ iter_phy(){
 
 void
 fgravity(BALL* a){
-	a->acc[1]-=3.8;
+	a->acc[1]-=1.5;
 }//fn
 
 void
@@ -191,13 +196,13 @@ update_model(){
 		float sx=-0.9,
 			  sy=1.0-0.01,
 			  dy=2*0.01,
-			  vx=0.1,
-			  vy=-0.1;
+			  vx=0.2,
+			  vy=-0.05;
 
 		genclick(sx	,sy		, vx	, vy   	);
-		//genclick(sx	,sy-dy	, vx	, vy*2	);
-		//genclick(sx	,sy-2*dy, vx	, vy*3	);
-		//fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
+		genclick(sx	,sy-dy	, vx	, vy*2	);
+		genclick(sx	,sy-2*dy, vx	, vy*3	);
+	//	fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
 	}
 	//sleep(1);
 	double rdt=fdt;
