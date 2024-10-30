@@ -27,6 +27,7 @@ typedef struct _BALL{
 void fgravity( BALL* a);
 void fcentergrav( BALL* a);
 void cinelastic_wall( BALL* a);
+void celastic_wall( BALL* a);
 void coll_dect();
 void iter_phy();
 void update_model();
@@ -41,7 +42,7 @@ int BALL_COUNT=0;
 BALL** ball_buff=NULL;
 
 #define force_num 2
-void (*force_buff[force_num])(BALL*)={fgravity,cinelastic_wall};
+void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
 
 void
 coll_dect(){
@@ -109,7 +110,32 @@ fcentergrav( BALL* a){
 	a->acc[1]-=a->pos[1]*3.0/pv;
 }//fn
 void
-cinelastic_wall(BALL* a){
+celastic_wall(BALL* a){
+	float coll_coff=0.9,v=0.0;
+
+	if (a->pos[0]+a->rad >1.0){
+		v=ptov(a->ppos[0],a->pos[0]);
+		a->pos[0]=2.0-(a->pos[0]+a->rad);
+		a->ppos[0]=vtop(-1.0*coll_coff*v,a->pos[0]);
+	}
+	if (a->pos[0]-a->rad <-1.0){
+		v=ptov(a->ppos[0],a->pos[0]);
+		a->pos[0]=-2.0-(a->pos[0]-a->rad);
+		a->ppos[0]=vtop(-1.0*coll_coff*v,a->pos[0]);
+	}
+	if (a->pos[1]+a->rad >1.0){
+		v=ptov(a->ppos[1],a->pos[1]);
+		a->pos[1]=2.0-(a->pos[1]+a->rad);
+		a->ppos[1]=vtop(-1.0*coll_coff*v,a->pos[1]);
+	}
+	if (a->pos[1]-a->rad <-1.0){
+		v=ptov(a->ppos[1],a->pos[1]);
+		a->pos[1]=-2.0-(a->pos[1]-a->rad);
+		a->ppos[1]=vtop(-1.0*coll_coff*v,a->pos[1]);
+	}
+}//fn
+
+void cinelastic_wall( BALL* a){
 	if (a->pos[0]+a->rad >1.0){
 		a->pos[0]=1.0-a->rad;
 	}
@@ -158,16 +184,16 @@ free_model(){
 void
 update_model(){
 	if (frameno%10==0){
-		float sx=-1.0,
+		float sx=-0.9,
 			  sy=1.0-0.01,
 			  dy=2*0.01,
 			  vx=0.1,
 			  vy=-0.1;
 
 		genclick(sx	,sy		, vx	, vy   	);
-		genclick(sx	,sy-dy	, vx	, vy*2	);
-		genclick(sx	,sy-2*dy, vx	, vy*3	);
-		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
+		//genclick(sx	,sy-dy	, vx	, vy*2	);
+		//genclick(sx	,sy-2*dy, vx	, vy*3	);
+		//fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
 	}
 	//sleep(1);
 	double rdt=fdt;
