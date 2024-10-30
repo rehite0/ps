@@ -1,23 +1,32 @@
 //0-x && 1-y
-#define abs2(o) (o[0]*o[0] + o[1]*o[1])
-#define mod(x)  ((x>0)? x:-1*x)
-#define vtop(v,p) (p-v*fdt)
-#define ptov(pp,p) ((p-pp)/fdt)
+#define abs2(o)		(o[0]*o[0] + o[1]*o[1])
+#define mod(x) 		((x>0)? x:-1*x)
+#define vtop(v,p)	(p-v*fdt)
+#define ptov(pp,p)	((p-pp)/fdt)
+#define ckflg(v,f)	(((v)&(f))!=0)
 
 //types
+enum bflags{
+	DEFAULT			=0b00000000 ,
+	NO_COLLISION	=0b00000001 ,
+	NO_FORCE		=0b00000010 ,
+	NO_CONSTRAIN	=0b00000100 ,
+	NO_MOVE			=0b00001000 ,
+	NO_DISPLAY		=0b00010000 
+};
 typedef struct _BALL{
 	float pos[2];
 	float ppos[2];
 	float acc[2];
 	float color[4];
 	float rad;
-
+	unsigned int flag;
 }BALL;
 
 //fn prototype
 void fgravity( BALL* a);
 void fcentergrav( BALL* a);
-void fconstrain( BALL* a);
+void cinelastic_wall( BALL* a);
 void coll_dect();
 void iter_phy();
 void update_model();
@@ -32,14 +41,17 @@ int BALL_COUNT=0;
 BALL** ball_buff=NULL;
 
 #define force_num 2
-void (*force_buff[force_num])(BALL*)={fcentergrav,fconstrain};
+void (*force_buff[force_num])(BALL*)={fgravity,cinelastic_wall};
 
 void
 coll_dect(){
 	int i,j;
 	for (i=0;i<BALL_COUNT;i++){
 		for (j=0;j<BALL_COUNT;j++){
-			if (i==j) continue;
+			if (   ckflg(ball_buff[i]->flag,NO_COLLISION)
+				|| ckflg(ball_buff[j]->flag,NO_COLLISION)
+				|| i==j	) continue;
+
 			BALL* a=ball_buff[i];
 			BALL* b=ball_buff[j];
 
@@ -97,7 +109,7 @@ fcentergrav( BALL* a){
 	a->acc[1]-=a->pos[1]*3.0/pv;
 }//fn
 void
-fconstrain(BALL* a){
+cinelastic_wall(BALL* a){
 	if (a->pos[0]+a->rad >1.0){
 		a->pos[0]=1.0-a->rad;
 	}
@@ -118,7 +130,9 @@ genclick(float x, float y, float vx, float vy){
 		{0.0, 0.0},
 		{0.0, 0.0},
 		{1.0, 0.5, 0.0, 1.0},
-		0.01 };
+		0.01,
+		DEFAULT
+	};
 	BALL* a=malloc(sizeof(BALL));
 	assert(a && "malloc failed");
 	*a=ball_bp;
@@ -150,9 +164,9 @@ update_model(){
 			  vx=0.1,
 			  vy=-0.1;
 
-	//	genclick(sx	,sy		, vx	, vy   	);
-	//	genclick(sx	,sy-dy	, vx	, vy*2	);
-	//	genclick(sx	,sy-2*dy, vx	, vy*3	);
+		genclick(sx	,sy		, vx	, vy   	);
+		genclick(sx	,sy-dy	, vx	, vy*2	);
+		genclick(sx	,sy-2*dy, vx	, vy*3	);
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
 	}
 	//sleep(1);
