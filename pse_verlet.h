@@ -111,6 +111,8 @@ fcentergrav( BALL* a){
 }//fn
 void
 celastic_wall(BALL* a){
+	if (ckflg(a->flag,NO_CONSTRAIN)) return;
+
 	float coll_coff=0.9,v=0.0;
 
 	if (a->pos[0]+a->rad >1.0){
@@ -136,6 +138,8 @@ celastic_wall(BALL* a){
 }//fn
 
 void cinelastic_wall( BALL* a){
+	if (ckflg(a->flag,NO_CONSTRAIN)) return;
+
 	if (a->pos[0]+a->rad >1.0){
 		a->pos[0]=1.0-a->rad;
 	}
