@@ -44,7 +44,7 @@ BALL** ball_buff=NULL;
 BALL* mouse_ball=NULL;
 
 #define force_num 2
-void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
+void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
 
 void
 coll_dect(){
