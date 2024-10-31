@@ -20,13 +20,13 @@ int qt_insert(_point* p,qtree* t);
 	//t [in] pointer to root node of tree
 	//ret [evar] 1 if inserted, 0 if insertion denied and panic if unexpected things happned
 
-//void qt_pvt_subdivide(qtree* t);
+void qt_pvt_subdivide(qtree* t);
 _point* qt_query_range_sq(qtree* t,bod b,int* size);
 	//t [in] pointer to root node of tree to search
 	//b [in] boundary of area where point need to be search
 	//size [out]-size of buff
 	//ret [out] pointer to an array of _point* whth 'size' elements
-//void qt_free(qtree* t);
+void qt_free(qtree* t);
 
 qtree* qt_create(bod b){
 	qtree* ret=malloc(sizeof(qtree));
@@ -63,18 +63,56 @@ int qt_insert(_point* p,qtree* t){
 			++(t->len);
 			return 1;
 		case 4:
-			subdivide(t);
+			qt_pvt_subdivide(t);
 			++(t->len);
 			break;
 		default:
 			++(t->len);
 			break;
 	}//switch
-	return insert(t->i1.t,p)
-		|| insert(t->i2.t,p)
-		|| insert(t->i2.t,p)
-		|| insert(t->i2.t,p)
+	return qt_insert(t->i1.t,p)
+		|| qt_insert(t->i2.t,p)
+		|| qt_insert(t->i2.t,p)
+		|| qt_insert(t->i2.t,p)
 		|| assert(0 && "insertion failed unexpected behaviour!");
+}//fn
+
+void qt_pvt_subdivide(qtree* t){
+	_point p1=t->q1.p
+		,p2=t->q2.p
+		,p3=t->q3.p
+		,p4=t->q4.p;
+	bod b=t->b;
+	qtree*	q1=qt_create((bod){b.px				,(b.px+b.nx)/2	,b.py			,(b.py+b.ny)/2})
+		,	q2=qt_create((bod){(b.px+b.nx)/2	,b.nx			,b.py			,(b.py+b.ny)/2})
+		,	q3=qt_create((bod){(b.px+b.nx)/2	,b.nx			,(b.py+b.ny)/2	,b.ny})
+		,	q4=qt_create((bod){b.px				,(b.px+b.nx)/2	,(b.py+b.ny)/2	,b.ny});
+
+	   qt_insert(p1,q1)
+	|| qt_insert(p1,q2)
+	|| qt_insert(p1,q3)
+	|| qt_insert(p1,q4)
+	|| assert(0&&"insertion failed unexpected behaviour");
+	   qt_insert(p2,q1)
+	|| qt_insert(p2,q2)
+	|| qt_insert(p2,q3)
+	|| qt_insert(p2,q4)
+	|| assert(0&&"insertion failed unexpected behaviour");
+	   qt_insert(p3,q1)
+	|| qt_insert(p3,q2)
+	|| qt_insert(p3,q3)
+	|| qt_insert(p3,q4)
+	|| assert(0&&"insertion failed unexpected behaviour");
+	   qt_insert(p4,q1)
+	|| qt_insert(p4,q2)
+	|| qt_insert(p4,q3)
+	|| qt_insert(p4,q4)
+	|| assert("insertion failed unexpected behaviour");
+
+	t->q1.t=q1;
+	t->q2.t=q2;
+	t->q3.t=q3;
+	t->q4.t=q4;
 }//fn
 
 _point* qt_query_range_sq(qtree* t,bod b,int* num){
@@ -158,6 +196,18 @@ _point* qt_query_range_sq(qtree* t,bod b,int* num){
 				free(buff[i]);
 			}//for i
 			return ret;
-	}//switch
-	
+	}//switch	
+}//fn
+
+void qt_free(qtree* t){
+	if (t.len>4 && t.len!=0){
+		qt_free(t->q1.t);
+		qt_free(t->q2.t);
+		qt_free(t->q3.t);
+		qt_free(t->q4.t);
+	}
+	else{
+		free(t);
+		return;
+	}
 }//fn
