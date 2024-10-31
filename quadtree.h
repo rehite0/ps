@@ -15,9 +15,17 @@ typedef struct _qtree{
 }qtree;
 
 //qtree* qt_create();
-int qt_insert(_point* b,qtree* t);
+int qt_insert(_point* p,qtree* t);
+	//p [in] pointer to point to be inserted
+	//t [in] pointer to root node of tree
+	//ret [evar] 1 if inserted, 0 if insertion denied and panic if unexpected things happned
+
 //void qt_pvt_subdivide(qtree* t);
-//qt_query_range_sq(qtree* t,bod b);
+_point* qt_query_range_sq(qtree* t,bod b,int* size);
+	//t [in] pointer to root node of tree to search
+	//b [in] boundary of area where point need to be search
+	//size [out]-size of buff
+	//ret [out] pointer to an array of _point* whth 'size' elements
 //void qt_free(qtree* t);
 
 int qt_insert(_point* p,qtree* t){
