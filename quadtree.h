@@ -2,8 +2,10 @@
 #include <assert.h>
 #include <stdio.h>
 
-typedef ball _point;
+typedef BALL _point;
 #define CAP 4
+#define ax(p) (p->pos[0])
+#define ay(p) (p->pos[1])
 
 typedef struct _bod {
 	float px,nx,py,ny;
@@ -44,10 +46,10 @@ qtree* qt_create(bod b){
 }//fn
 
 int qt_insert(_point* p,qtree* t){
-	if (	p->x > t->b.px
-		||	p->x < t->b.nx
-		||	p->y > t->b.py
-		||	p->y < t->b.ny
+	if (	ax(p) > t->b.px
+		||	ax(p) < t->b.nx
+		||	ay(p) > t->b.py
+		||	ay(p) < t->b.ny
 			) return 0;
 	switch (t->len){
 		case 0:
@@ -129,36 +131,36 @@ _point** qt_query_range_sq(qtree* t,bod b,int* num){
 	
 	switch (t->len){
 		case 4:
-			if	(	t->q4.p->x <= b.px
-				&&	t->q4.p->x >= b.nx
-				&&	t->q4.p->y <= b.py
-				&&	t->q4.p->y >= b.ny
+			if	(	ax(t->q4.p) <= b.px
+				&&	ax(t->q4.p) >= b.nx
+				&&	ay(t->q4.p) <= b.py
+				&&	ay(t->q4.p) >= b.ny
 				){
 				arr[(*num)++]=t->q1.p;
 			}
 		case 3:
-			if	(	t->q3.p->x <= b.px
-				&&	t->q3.p->x >= b.nx
-				&&	t->q3.p->y <= b.py
-				&&	t->q3.p->y >= b.ny
+			if	(	ax(t->q3.p) <= b.px
+				&&	ax(t->q3.p) >= b.nx
+				&&	ay(t->q3.p) <= b.py
+				&&	ay(t->q3.p) >= b.ny
 				){
 				arr[(*num)++]=t->q3.p;
 			}
 
 		case 2:
-			if	(	t->q2.p->x <= b.px
-				&&	t->q2.p->x >= b.nx
-				&&	t->q2.p->y <= b.py
-				&&	t->q2.p->y >= b.ny
+			if	(	ax(t->q2.p) <= b.px
+				&&	ax(t->q2.p) >= b.nx
+				&&	ay(t->q2.p) <= b.py
+				&&	ay(t->q2.p) >= b.ny
 				){
 				arr[(*num)++]=t->q2.p;
 			}
 
 		case 1:
-			if	(	t->q1.p->x <= b.px
-				&&	t->q1.p->x >= b.nx
-				&&	t->q1.p->y <= b.py
-				&&	t->q1.p->y >= b.ny
+			if	(	ax(t->q1.p) <= b.px
+				&&	ax(t->q1.p) >= b.nx
+				&&	ay(t->q1.p) <= b.py
+				&&	ay(t->q1.p) >= b.ny
 				){
 				arr[(*num)++]=t->q1.p;
 			}

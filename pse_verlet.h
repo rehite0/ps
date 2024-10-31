@@ -1,4 +1,6 @@
 //0-x && 1-y
+
+#define use_qt 1
 #define abs2(o)		(o[0]*o[0] + o[1]*o[1])
 #define mod(x) 		((x>0)? x:-1*x)
 #define vtop(v,p)	(p-v*fdt)
@@ -23,20 +25,24 @@ typedef struct _BALL{
 	unsigned int flag;
 }BALL;
 
+#include "quadtree.h"
+
 //fn prototype
 void fgravity( BALL* a);
 void fcentergrav( BALL* a);
 void cinelastic_wall( BALL* a);
 void celastic_wall( BALL* a);
 void coll_dect();
+void coll_dect_qt();
 void iter_phy();
 void update_model();
-void genclick(float x, float y, float vx, float vy);
-//void genblast(int x, int y, float velx, float vely, int num);
+//void genclick(float x, float y, float vx, float vy);
+void genblast(int x, int y, float velx, float vely, int num);
 void free_model();
 
 //globle var
 double t,dt,fdt=1.0/60.0;
+qtree* qt=NULL;
 unsigned long long int frameno=0;
 int BALL_COUNT=0;
 BALL** ball_buff=NULL;
@@ -44,6 +50,7 @@ BALL** ball_buff=NULL;
 BALL* mouse_ball=NULL;
 
 #define force_num 2
+//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
 void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
 
 void
@@ -70,9 +77,46 @@ coll_dect(){
 			b->pos[0]-=0.5f*delta*axis[0]/dist;
 			b->pos[1]-=0.5f*delta*axis[1]/dist;
 		}
-
 		}//for j
 	}//for i
+}//fn
+
+
+void
+coll_dect_qt(){
+	int i,j;
+	for (i=0;i<BALL_COUNT;++i){
+		int s=0;
+		BALL** buff=qt_query_range_sq(qt,(bod){
+				ball_buff[i]->pos[0]+5*ball_buff[i]->rad,
+				ball_buff[i]->pos[0]-5*ball_buff[i]->rad,
+				ball_buff[i]->pos[1]+5*ball_buff[i]->rad,
+				ball_buff[i]->pos[1]-5*ball_buff[i]->rad
+				},&s);
+		for (j=0;j<s;++j){
+			if (   ckflg(ball_buff[i]->flag,NO_COLLISION)
+				|| ckflg(buff[j]->flag,NO_COLLISION)
+				|| ball_buff[i]==buff[j]	) continue;
+
+			BALL* a=ball_buff[i];
+			BALL* b=buff[j];
+
+			double axis[2]={
+					a->pos[0]-b->pos[0],
+					a->pos[1]-b->pos[1]};
+			double dist,delta;
+			dist=sqrt(abs2(axis));
+			delta=(a->rad+b->rad)-dist;
+		if (delta>0.0){
+			a->pos[0]+=0.5f*delta*axis[0]/dist;
+			a->pos[1]+=0.5f*delta*axis[1]/dist;
+			b->pos[0]-=0.5f*delta*axis[0]/dist;
+			b->pos[1]-=0.5f*delta*axis[1]/dist;
+		}
+		}//for j
+	}//for i
+	qt_free(qt);
+	qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 }//fn
 
 void
@@ -98,8 +142,10 @@ iter_phy(){
 		ball_buff[i]->acc[1]=0.0;
 
 		if (ckflg(ball_buff[i]->flag,NO_FORCE)) continue;
-		for (int j=0;j<force_num;j++)
+		for (int j=0;j<force_num;j++){
 			(*force_buff[j])(ball_buff[i]);
+			if (use_qt)	qt_insert(ball_buff[i],qt);
+		}//for j
 	}//for i
 }//fn
 
@@ -165,7 +211,7 @@ genclick(float x, float y, float vx, float vy){
 		{0.0, 0.0},
 		{0.0, 0.0},
 		{1.0, 0.5, 0.0, 1.0},
-		0.01,
+		0.03,
 		DEFAULT
 	};
 	BALL* a=malloc(sizeof(BALL));
@@ -199,10 +245,10 @@ update_model(){
 			  vx=0.2,
 			  vy=-0.05;
 
-		genclick(sx	,sy		, vx	, vy   	);
-		genclick(sx	,sy-dy	, vx	, vy*2	);
-		genclick(sx	,sy-2*dy, vx	, vy*3	);
-	//	fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
+	//	genclick(sx	,sy		, vx	, vy   	);
+	//	genclick(sx	,sy-dy	, vx	, vy*2	);
+	//	genclick(sx	,sy-2*dy, vx	, vy*3	);
+		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
 	}
 	//sleep(1);
 	double rdt=fdt;
@@ -210,7 +256,10 @@ update_model(){
 	fdt=fdt/substep;
 	for (int i=0;i<substep;++i){
 		iter_phy()	;
-		coll_dect() ;
+		if (use_qt)
+			coll_dect_qt();
+		else
+			coll_dect() ;
 	}
 	fdt=rdt;
 }//fn

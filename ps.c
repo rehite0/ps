@@ -202,6 +202,7 @@ main(void)
 	//clean up
 	glfwDestroyWindow(win_main);
 	if (ball_buff) free_model(ball_buff);
+	if (qt) qt_free(qt);
 	err_log(0,"application terminated");
 }//main
  
@@ -241,6 +242,9 @@ model_setup(){
 	a->rad=0.03;		a->flag=NO_FORCE|NO_CONSTRAIN|NO_MOVE|NO_COLLISION|NO_DISPLAY;
 	ball_buff[BALL_COUNT-1]=a;
 	mouse_ball=a;
+
+
+	if ( use_qt ) qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 }//fn
 
 void*
