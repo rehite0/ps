@@ -1,4 +1,8 @@
-#define _point ball
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+
+typedef ball _point;
 #define CAP 4
 
 typedef struct _bod {
@@ -21,7 +25,7 @@ int qt_insert(_point* p,qtree* t);
 	//ret [evar] 1 if inserted, 0 if insertion denied and panic if unexpected things happned
 
 void qt_pvt_subdivide(qtree* t);
-_point* qt_query_range_sq(qtree* t,bod b,int* size);
+_point** qt_query_range_sq(qtree* t,bod b,int* size);
 	//t [in] pointer to root node of tree to search
 	//b [in] boundary of area where point need to be search
 	//size [out]-size of buff
@@ -70,44 +74,39 @@ int qt_insert(_point* p,qtree* t){
 			++(t->len);
 			break;
 	}//switch
-	return qt_insert(t->i1.t,p)
-		|| qt_insert(t->i2.t,p)
-		|| qt_insert(t->i2.t,p)
-		|| qt_insert(t->i2.t,p)
-		|| assert(0 && "insertion failed unexpected behaviour!");
+	return qt_insert(p,t->q1.t)
+		|| qt_insert(p,t->q2.t)
+		|| qt_insert(p,t->q2.t)
+		|| qt_insert(p,t->q2.t);
 }//fn
 
 void qt_pvt_subdivide(qtree* t){
-	_point p1=t->q1.p
-		,p2=t->q2.p
-		,p3=t->q3.p
-		,p4=t->q4.p;
+	_point* p1=t->q1.p;
+	_point* p2=t->q2.p;
+	_point* p3=t->q3.p;
+	_point* p4=t->q4.p;
 	bod b=t->b;
-	qtree*	q1=qt_create((bod){b.px				,(b.px+b.nx)/2	,b.py			,(b.py+b.ny)/2})
-		,	q2=qt_create((bod){(b.px+b.nx)/2	,b.nx			,b.py			,(b.py+b.ny)/2})
-		,	q3=qt_create((bod){(b.px+b.nx)/2	,b.nx			,(b.py+b.ny)/2	,b.ny})
-		,	q4=qt_create((bod){b.px				,(b.px+b.nx)/2	,(b.py+b.ny)/2	,b.ny});
+	qtree* q1=qt_create((bod){b.px				,(b.px+b.nx)/2	,b.py			,(b.py+b.ny)/2});
+	qtree* q2=qt_create((bod){(b.px+b.nx)/2	,b.nx			,b.py			,(b.py+b.ny)/2});
+	qtree* q3=qt_create((bod){(b.px+b.nx)/2	,b.nx			,(b.py+b.ny)/2	,b.ny});
+	qtree* q4=qt_create((bod){b.px				,(b.px+b.nx)/2	,(b.py+b.ny)/2	,b.ny});
 
 	   qt_insert(p1,q1)
 	|| qt_insert(p1,q2)
 	|| qt_insert(p1,q3)
-	|| qt_insert(p1,q4)
-	|| assert(0&&"insertion failed unexpected behaviour");
+	|| qt_insert(p1,q4);
 	   qt_insert(p2,q1)
 	|| qt_insert(p2,q2)
 	|| qt_insert(p2,q3)
-	|| qt_insert(p2,q4)
-	|| assert(0&&"insertion failed unexpected behaviour");
+	|| qt_insert(p2,q4);
 	   qt_insert(p3,q1)
 	|| qt_insert(p3,q2)
 	|| qt_insert(p3,q3)
-	|| qt_insert(p3,q4)
-	|| assert(0&&"insertion failed unexpected behaviour");
+	|| qt_insert(p3,q4);
 	   qt_insert(p4,q1)
 	|| qt_insert(p4,q2)
 	|| qt_insert(p4,q3)
-	|| qt_insert(p4,q4)
-	|| assert("insertion failed unexpected behaviour");
+	|| qt_insert(p4,q4);
 
 	t->q1.t=q1;
 	t->q2.t=q2;
@@ -115,81 +114,74 @@ void qt_pvt_subdivide(qtree* t){
 	t->q4.t=q4;
 }//fn
 
-_point* qt_query_range_sq(qtree* t,bod b,int* num){
-	_point* ret=NULL;
-	if (	p->x > t->b.px
-		||	p->x < t->b.nx
-		||	p->y > t->b.py
-		||	p->y < t->b.ny
-		){
+_point** qt_query_range_sq(qtree* t,bod b,int* num){
+	*num=0;
+	_point* arr[4]={0,0,0,0};
+	_point** ret=NULL;
+	if (	b.px < t->b.nx
+		||	b.nx > t->b.px
+		||	b.py < t->b.ny
+		||	b.ny > t->b.py
+		||	t->len==0){
 		*num=0;
 		return NULL;
 	}//if
+	
 	switch (t->len){
 		case 4:
-			if(ret==0){ 
-				ret=malloc(sizeof(_point)*4);
-				*num=4;	}
-			if	(	t->q4.p.x <= b.px
-				||	t->q4.p.x >= b.nx
-				||	t->q4.p.y <= b.py
-				||	t->q4.p.y >= b.ny
+			if	(	t->q4.p->x <= b.px
+				&&	t->q4.p->x >= b.nx
+				&&	t->q4.p->y <= b.py
+				&&	t->q4.p->y >= b.ny
 				){
-				ret[*num-4]=t->q1.p;
+				arr[(*num)++]=t->q1.p;
 			}
 		case 3:
-			if(ret==0){ 
-				ret=malloc(sizeof(_point)*3);
-				*num=3;	}
-			if	(	t->q3.p.x <= b.px
-				||	t->q3.p.x >= b.nx
-				||	t->q3.p.y <= b.py
-				||	t->q3.p.y >= b.ny
+			if	(	t->q3.p->x <= b.px
+				&&	t->q3.p->x >= b.nx
+				&&	t->q3.p->y <= b.py
+				&&	t->q3.p->y >= b.ny
 				){
-				ret[*num-3]=t->q3.p;
+				arr[(*num)++]=t->q3.p;
 			}
 
 		case 2:
-			if(ret==0){ 
-				ret=malloc(sizeof(_point)*2);
-				*num=2;	}
-			if	(	t->q2.p.x <= b.px
-				||	t->q2.p.x >= b.nx
-				||	t->q2.p.y <= b.py
-				||	t->q2.p.y >= b.ny
+			if	(	t->q2.p->x <= b.px
+				&&	t->q2.p->x >= b.nx
+				&&	t->q2.p->y <= b.py
+				&&	t->q2.p->y >= b.ny
 				){
-				ret[*num-2]=t->q2.p;
+				arr[(*num)++]=t->q2.p;
 			}
 
 		case 1:
-			if(ret==0){ 
-				ret=malloc(sizeof(_point)*1);
-				*num=1;	}
-			if	(	t->q1.p.x <= b.px
-				||	t->q1.p.x >= b.nx
-				||	t->q1.p.y <= b.py
-				||	t->q1.p.y >= b.ny
+			if	(	t->q1.p->x <= b.px
+				&&	t->q1.p->x >= b.nx
+				&&	t->q1.p->y <= b.py
+				&&	t->q1.p->y >= b.ny
 				){
-				ret[*num-1]=t->q1.p;
+				arr[(*num)++]=t->q1.p;
 			}
+			ret=malloc(sizeof(_point*)*(*num));
+			for (int i=0;i<*num;++i) ret[i]=arr[i];
 			return ret;
 		case 0:
 			*num=0;
 			return NULL;
 		default:
 			int s[4]={0,0,0,0};
-			_point* buff[4]={0,0,0,0};
+			_point** buff[4]={0,0,0,0};
 			buff[0]=qt_query_range_sq( t->q1.t, b , (int*)s   );
 			buff[1]=qt_query_range_sq( t->q2.t, b , (int*)s+1 );
 			buff[2]=qt_query_range_sq( t->q3.t, b , (int*)s+2 );
 			buff[3]=qt_query_range_sq( t->q4.t, b , (int*)s+3 );
 			//merge buff
 			*num=s[0]+s[1]+s[2]+s[3];
-			ret=malloc(sizeof(_point)*(*num));
+			ret=malloc(sizeof(_point*)*(*num));
 			assert(ret && "malloc failed");
 			int k=0;
 			for (int i=0 ; i<4 ;++i){
-				for (int j=0 ; j<s[i] ; ++i){
+				for (int j=0 ; j<s[i] ; ++j){
 					ret[k]=buff[i][j];
 					++k;
 				}//for j
@@ -200,11 +192,12 @@ _point* qt_query_range_sq(qtree* t,bod b,int* num){
 }//fn
 
 void qt_free(qtree* t){
-	if (t.len>4 && t.len!=0){
+	if (t->len>4 && t->len!=0){
 		qt_free(t->q1.t);
 		qt_free(t->q2.t);
 		qt_free(t->q3.t);
 		qt_free(t->q4.t);
+		free(t);
 	}
 	else{
 		free(t);
