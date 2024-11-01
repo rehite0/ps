@@ -3,13 +3,16 @@
 #include <stdio.h>
 
 typedef BALL _point;
-#define CAP 4
+	//redefine the underlying _point type while using
 #define ax(p) (p->pos[0])
+	//how to acess x coord from _point
 #define ay(p) (p->pos[1])
+	//how to acess y coord from _point
 
 typedef struct _bod {
 	float px,nx,py,ny;
 } bod;
+	//boundary structure
 
 typedef struct _qtree{
 	int len;
@@ -19,8 +22,10 @@ typedef struct _qtree{
 		struct _qtree* t;
 	} q1,q2,q3,q4;
 }qtree;
+	//quad tree structure
 
 qtree* qt_create(bod b);
+	//create a clean quad tree
 int qt_insert(_point* p,qtree* t);
 	//p [in] pointer to point to be inserted
 	//t [in] pointer to root node of tree
@@ -33,6 +38,7 @@ _point** qt_query_range_sq(qtree* t,bod b,int* size);
 	//size [out]-size of buff
 	//ret [out] pointer to an array of _point* whth 'size' elements
 void qt_free(qtree* t);
+	//free quad tree
 
 qtree* qt_create(bod b){
 	qtree* ret=malloc(sizeof(qtree));
