@@ -78,8 +78,8 @@ int qt_insert(_point* p,qtree* t){
 	}//switch
 	return qt_insert(p,t->q1.t)
 		|| qt_insert(p,t->q2.t)
-		|| qt_insert(p,t->q2.t)
-		|| qt_insert(p,t->q2.t);
+		|| qt_insert(p,t->q3.t)
+		|| qt_insert(p,t->q4.t);
 }//fn
 
 void qt_pvt_subdivide(qtree* t){
@@ -136,7 +136,7 @@ _point** qt_query_range_sq(qtree* t,bod b,int* num){
 				&&	ay(t->q4.p) <= b.py
 				&&	ay(t->q4.p) >= b.ny
 				){
-				arr[(*num)++]=t->q1.p;
+				arr[(*num)++]=t->q4.p;
 			}
 		case 3:
 			if	(	ax(t->q3.p) <= b.px
@@ -167,9 +167,6 @@ _point** qt_query_range_sq(qtree* t,bod b,int* num){
 			ret=malloc(sizeof(_point*)*(*num));
 			for (int i=0;i<*num;++i) ret[i]=arr[i];
 			return ret;
-		case 0:
-			*num=0;
-			return NULL;
 		default:
 			int s[4]={0,0,0,0};
 			_point** buff[4]={0,0,0,0};

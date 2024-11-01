@@ -50,6 +50,7 @@ BALL** ball_buff=NULL;
 BALL* mouse_ball=NULL;
 
 #define force_num 2
+//void (*force_buff[force_num])(BALL*)={celastic_wall};
 //void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
 void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
 
@@ -88,10 +89,10 @@ coll_dect_qt(){
 	for (i=0;i<BALL_COUNT;++i){
 		int s=0;
 		BALL** buff=qt_query_range_sq(qt,(bod){
-				ball_buff[i]->pos[0]+5*ball_buff[i]->rad,
-				ball_buff[i]->pos[0]-5*ball_buff[i]->rad,
-				ball_buff[i]->pos[1]+5*ball_buff[i]->rad,
-				ball_buff[i]->pos[1]-5*ball_buff[i]->rad
+				ball_buff[i]->pos[0]+2*ball_buff[i]->rad,
+				ball_buff[i]->pos[0]-2*ball_buff[i]->rad,
+				ball_buff[i]->pos[1]+2*ball_buff[i]->rad,
+				ball_buff[i]->pos[1]-2*ball_buff[i]->rad
 				},&s);
 		for (j=0;j<s;++j){
 			if (   ckflg(ball_buff[i]->flag,NO_COLLISION)
@@ -211,7 +212,7 @@ genclick(float x, float y, float vx, float vy){
 		{0.0, 0.0},
 		{0.0, 0.0},
 		{1.0, 0.5, 0.0, 1.0},
-		0.03,
+		0.01,
 		DEFAULT
 	};
 	BALL* a=malloc(sizeof(BALL));
@@ -245,12 +246,13 @@ update_model(){
 			  vx=0.2,
 			  vy=-0.05;
 
-	//	genclick(sx	,sy		, vx	, vy   	);
-	//	genclick(sx	,sy-dy	, vx	, vy*2	);
-	//	genclick(sx	,sy-2*dy, vx	, vy*3	);
-		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)frameno/t);
+		genclick(sx	,sy		, vx	, vy   	);
+		genclick(sx	,sy-dy	, vx	, vy*2	);
+		genclick(sx	,sy-2*dy, vx	, vy*3	);
+		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}
-	//sleep(1);
+	//char x[10];scanf("%s",x);/////////////////////////////////////////////////////////////
+	//sleep(0.7);/////////////////////////////////////////////////////////////////////////////
 	double rdt=fdt;
 	int substep=8;
 	fdt=fdt/substep;
