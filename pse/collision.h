@@ -18,12 +18,16 @@ coll_dect(){
 			double dist,delta;
 			dist=sqrt(abs2(axis));
 			delta=(a->rad+b->rad)-dist;
-		if (delta>0.0){
-			a->pos[0]+=0.5f*delta*axis[0]/dist;
-			a->pos[1]+=0.5f*delta*axis[1]/dist;
-			b->pos[0]-=0.5f*delta*axis[0]/dist;
-			b->pos[1]-=0.5f*delta*axis[1]/dist;
-		}
+			if (delta>0.0){
+				if (!ckflg(a->flag,NO_MOVE)){
+					a->pos[0]+=0.5f*delta*axis[0]/dist;
+					a->pos[1]+=0.5f*delta*axis[1]/dist;
+				}
+				if (!ckflg(b->flag,NO_MOVE)){
+					b->pos[0]-=0.5f*delta*axis[0]/dist;
+					b->pos[1]-=0.5f*delta*axis[1]/dist;
+				}
+			}
 		}//for j
 	}//for i
 }//fn
@@ -53,12 +57,16 @@ coll_dect_qt(){
 			double dist,delta;
 			dist=sqrt(abs2(axis));
 			delta=(a->rad+b->rad)-dist;
-		if (delta>0.0){
-			a->pos[0]+=0.5f*delta*axis[0]/dist;
-			a->pos[1]+=0.5f*delta*axis[1]/dist;
-			b->pos[0]-=0.5f*delta*axis[0]/dist;
-			b->pos[1]-=0.5f*delta*axis[1]/dist;
-		}
+			if (delta>0.0){
+				if (!ckflg(a->flag,NO_MOVE)){
+					a->pos[0]+=0.5f*delta*axis[0]/dist;
+					a->pos[1]+=0.5f*delta*axis[1]/dist;
+				}
+				if (!ckflg(b->flag,NO_MOVE)){
+					b->pos[0]-=0.5f*delta*axis[0]/dist;
+					b->pos[1]-=0.5f*delta*axis[1]/dist;
+				}
+			}
 		}//for j
 	}//for i
 	qt_free(qt);

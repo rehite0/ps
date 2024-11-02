@@ -53,7 +53,7 @@
 	void* prep_buff(BALL** balls,int num,int* size,int* stride);
 
 //globle var
-	double t,dt,fdt=1.0/60.0;
+	double t,dt,fdt=(1.0/60.0);
 	qtree* qt=NULL;
 	unsigned long long int frameno=0;
 	int BALL_COUNT=0;
@@ -63,8 +63,8 @@
 
 	#define force_num 2
 	//void (*force_buff[force_num])(BALL*)={celastic_wall};
-	void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
-	//void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
+	//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
+	void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
 #include "model.h"
 #include "forces_and_constrains.h"
 #include "collision.h"

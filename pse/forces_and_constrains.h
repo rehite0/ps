@@ -15,7 +15,7 @@ void
 celastic_wall(BALL* a){
 	if (ckflg(a->flag,NO_CONSTRAIN)) return;
 
-	float coll_coff=0.9,v=0.0;
+	float coll_coff=0.8,v=0.0;
 
 	if (a->pos[0]+a->rad >1.0){
 		v=ptov(a->ppos[0],a->pos[0]);

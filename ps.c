@@ -11,19 +11,12 @@
 //#include <cglm/io.h>
 //#define d(a) fprintf(stdout,"this is bp (" #a ")\n");
 #include "pse/main.h"
+#include "mygl/main.h"
 
 
 void err_callback(int error, const char* desc);
 void event_log(const char* desc);
 void err_log(int error, const char* desc);
-void scroll_cb(GLFWwindow *win, double x_offset, double y_offset);
-void mouse_click_cb(GLFWwindow* win, int button, int action, int mods);
-
-GLFWwindow* win_main =NULL;
-struct win_hw{
-	int h;
-	int w;
-}hw={1080,1080};
 
 int 
 main(void)
@@ -151,10 +144,13 @@ main(void)
 		model_setup();
 
 //input callback
-	//glfwSetScrollCallback(win_main, scroll_cb);
-	//glfwSetCursorPosCallback(win_main, cursor_position_callback);
-	//glfwSetCursorEnterCallback(window, cursor_enter_callback);
-	glfwSetMouseButtonCallback(win_main, mouse_click_cb);
+	glfwSetKeyCallback			(win_main, key_cb);
+	glfwSetCharCallback			(win_main, char_cb);	
+	glfwSetScrollCallback		(win_main, scroll_cb);
+	glfwSetCursorPosCallback	(win_main, cursor_position_cb);
+	glfwSetCursorEnterCallback	(win_main, cursor_enter_cb);
+	glfwSetMouseButtonCallback	(win_main, mouse_click_cb);
+	glfwSetDropCallback			(win_main, drop_cb);
 //input
 
 	unsigned int u_tdt,u_hw;
@@ -176,10 +172,10 @@ main(void)
 		glUniform2f(u_tdt,t,dt);
 		glUniform2f(u_hw,(float)hw.w,(float)hw.h);
 		
-		double mx,my;
-		glfwGetCursorPos(win_main,&mx,&my);
-		mouse_ball->pos[0]=(float)(mx/hw.w)*2.0-1.0;
-		mouse_ball->pos[1]=(float)(my/hw.h)*-2.0+1.0;
+		//double mx,my;
+	//	glfwGetCursorPos(win_main,&mx,&my);
+	//	mouse_ball->pos[0]=(float)(mx/hw.w)*2.0-1.0;
+	//	mouse_ball->pos[1]=(float)(my/hw.h)*-2.0+1.0;
 
 		update_model();
 		int size;
@@ -226,28 +222,3 @@ event_log(const char* desc){
 	fprintf(stdout,"event:%s\n",desc);
 }
 
-
-void
-scroll_cb(GLFWwindow *win, double x_offset, double y_offset){
-	//not used
-	(void*)0;
-}
-void
-mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
-	if (button==GLFW_MOUSE_BUTTON_LEFT &&
-		action==GLFW_RELEASE){
-		double xpos,ypos;
-		glfwGetCursorPos(win,&xpos,&ypos);
-		genclick((float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
-				,(float) ( (ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0
-				,0.0,0.05	);
-	}//if
-	if (button==GLFW_MOUSE_BUTTON_RIGHT){
-		assert(mouse_ball && "mouse ball is not present");
-		if (action==GLFW_RELEASE)
-			mouse_ball->flag=mouse_ball->flag|NO_DISPLAY|NO_COLLISION;
-		if (action==GLFW_PRESS)
-			mouse_ball->flag=mouse_ball->flag&(~NO_DISPLAY)&(~NO_COLLISION);
-
-	}//if
-}//fn
