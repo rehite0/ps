@@ -10,7 +10,7 @@
 #include <cglm/cglm.h>
 //#include <cglm/io.h>
 //#define d(a) fprintf(stdout,"this is bp (" #a ")\n");
-#include "pse_verlet.h"
+#include "pse/main.h"
 
 
 void err_callback(int error, const char* desc);
@@ -18,8 +18,6 @@ void event_log(const char* desc);
 void err_log(int error, const char* desc);
 void scroll_cb(GLFWwindow *win, double x_offset, double y_offset);
 void mouse_click_cb(GLFWwindow* win, int button, int action, int mods);
-void* prep_buff(BALL** balls,int num,int* size,int* stride);
-void model_setup();
 
 GLFWwindow* win_main =NULL;
 struct win_hw{
@@ -228,57 +226,6 @@ event_log(const char* desc){
 	fprintf(stdout,"event:%s\n",desc);
 }
 
-void
-model_setup(){
-	//mouse ball setup
-	BALL* a=malloc(sizeof(BALL));
-	assert(a &&"malloc failed");
-	ball_buff=realloc(ball_buff,sizeof(BALL*)*(++BALL_COUNT));
-	assert(ball_buff && "realloc failed");
-	a->pos[0]=0.0;		a->pos[1]=0.0;
-	a->ppos[0]=0.0;		a->ppos[1]=0.0;
-	a->acc[0]=0.0;		a->acc[1]=0.0;
-	a->color[0]=1.0;	a->color[1]=1.0;	a->color[2]=0.0;	a->color[3]=1.0;
-	a->rad=0.05;		a->flag=NO_FORCE|NO_CONSTRAIN|NO_MOVE|NO_COLLISION|NO_DISPLAY;
-	ball_buff[BALL_COUNT-1]=a;
-	mouse_ball=a;
-	
-//	for (int i=0;i<2500;++i)
-//		genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
-//				,-1.0+((double)rand()*2.0/RAND_MAX)
-//				, 0.0 , 0.0 );
-
-	if ( use_qt ) qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
-}//fn
-
-void*
-prep_buff(BALL** balls,int num,int* size,int* stride){
-	struct a{
-		vec4 color;
-		mat4 trans;
-		float radius;
-	};
-	*size=sizeof(struct a)*num;
-	if (stride){*stride=sizeof(struct a);}
-	if (!(*size)){return NULL;}
-	void* ret=malloc(*size);
-	assert(ret&&"malloc failed");
-	for(int i=0;i<num;++i){
-		if (ckflg(balls[i]->flag,NO_DISPLAY)) continue ;
-
-		vec3 y={balls[i]->pos[0],balls[i]->pos[1],0.0};
-		
-		struct a x;
-		x.color[0]=balls[i]->color[0];
-		x.color[1]=balls[i]->color[1];
-		x.color[2]=balls[i]->color[2];
-		x.color[3]=balls[i]->color[3];
-		x.radius=balls[i]->rad;
-		glm_translate_make(x.trans,y);
-		((struct a *)ret)[i]=x;
-	}//for i
-	return ret;
-}//fn
 
 void
 scroll_cb(GLFWwindow *win, double x_offset, double y_offset){

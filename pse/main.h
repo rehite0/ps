@@ -45,10 +45,12 @@
 	void update_model();
 	
 	void genclick(float x, float y, float vx, float vy);
-//void genblast(int x, int y, float velx, float vely, int num);
+	//void genblast(int x, int y, float velx, float vely, int num);
 	
+	void model_setup();
 	void free_model();
 
+	void* prep_buff(BALL** balls,int num,int* size,int* stride);
 
 //globle var
 	double t,dt,fdt=1.0/60.0;
