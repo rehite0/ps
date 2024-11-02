@@ -51,8 +51,8 @@ BALL* mouse_ball=NULL;
 
 #define force_num 2
 //void (*force_buff[force_num])(BALL*)={celastic_wall};
-//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
-void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
+void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
+//void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
 
 void
 coll_dect(){
@@ -169,22 +169,22 @@ celastic_wall(BALL* a){
 
 	if (a->pos[0]+a->rad >1.0){
 		v=ptov(a->ppos[0],a->pos[0]);
-		a->pos[0]=2.0-(a->pos[0]+a->rad);
+		a->pos[0]-=2.0*(a->pos[0]+a->rad-1.0);
 		a->ppos[0]=vtop(-1.0*coll_coff*v,a->pos[0]);
 	}
 	if (a->pos[0]-a->rad <-1.0){
 		v=ptov(a->ppos[0],a->pos[0]);
-		a->pos[0]=-2.0-(a->pos[0]-a->rad);
+		a->pos[0]-=2.0*(a->pos[0]-a->rad+1.0);
 		a->ppos[0]=vtop(-1.0*coll_coff*v,a->pos[0]);
 	}
 	if (a->pos[1]+a->rad >1.0){
 		v=ptov(a->ppos[1],a->pos[1]);
-		a->pos[1]=2.0-(a->pos[1]+a->rad);
+		a->pos[1]-=2.0*(a->pos[1]+a->rad-1.0);
 		a->ppos[1]=vtop(-1.0*coll_coff*v,a->pos[1]);
 	}
 	if (a->pos[1]-a->rad <-1.0){
 		v=ptov(a->ppos[1],a->pos[1]);
-		a->pos[1]=-2.0-(a->pos[1]-a->rad);
+		a->pos[1]-=2.0*(a->pos[1]-a->rad+1.0);
 		a->ppos[1]=vtop(-1.0*coll_coff*v,a->pos[1]);
 	}
 }//fn
@@ -239,17 +239,15 @@ free_model(){
 }
 void
 update_model(){
-	if (frameno%10==0){
-		float sx=-0.9,
+	if (frameno%1==0){
+		float sx=-0.98,
 			  sy=1.0-0.01,
 			  dy=2*0.01,
-			  vx=0.2,
-			  vy=-0.05;
-
-		genclick(sx	,sy		, vx	, vy   	);
-		genclick(sx	,sy-dy	, vx	, vy*2	);
-		genclick(sx	,sy-2*dy, vx	, vy*3	);
-		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
+			  vx=0.2,//0.2
+			  vy=-0.00;//0.05
+		//for (int i=0;i<6;++i)
+			//genclick(sx	,sy-dy*i, vx	, vy*(i+1)   );
+		//fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}
 	//char x[10];scanf("%s",x);/////////////////////////////////////////////////////////////
 	//sleep(0.7);/////////////////////////////////////////////////////////////////////////////
