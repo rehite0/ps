@@ -15,7 +15,7 @@ model_setup(){
 	ball_buff[BALL_COUNT-1]=a;
 	mouse_ball=a;
 	
-	for (int i=0;i<7500;++i)
+	for (int i=0;i<2500;++i)
 		genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
 				,-1.0+((double)rand()*2.0/RAND_MAX)
 				, 0.0 , 0.0 );
@@ -24,14 +24,14 @@ model_setup(){
 }//fn
 
 void
-update_model(){
+update_model(){///////////////////////////////////////////////////////////////////////////////////
 	float sx=-0.98,
 		  sy=1.0-0.01,
 		  dy=2*0.01,
 		  vx=0.2,//0.2
 		  vy=-0.00;//0.05
-//	for (int i=0;i<4;++i)
-//		genclick(sx	,sy-dy*i, vx	, vy*(i+1)   );
+	//for (int i=0;i<4;++i)
+	//	genclick(sx	,sy-dy*i, vx	, vy*(i+1)   );
 	
 	if (frameno%60==0){
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
@@ -52,15 +52,15 @@ update_model(){
 }//fn
 
 void
-iter_phy(){
+iter_phy(int startidx,int endidx){
 	int i;
-	for (i=0;i<BALL_COUNT;++i){
+	for (i=startidx;i<endidx;++i){
 		if (!ckflg(ball_buff[i]->flag,NO_MOVE)){
 			
 			float px=ball_buff[i]->ppos[0],py=ball_buff[i]->ppos[1];
 			ball_buff[i]->ppos[0]=ball_buff[i]->pos[0];
 			ball_buff[i]->ppos[1]=ball_buff[i]->pos[1];
-
+	
 			ball_buff[i]->pos[0]
 				=ball_buff[i]->pos[0]*2.0
 				-px
@@ -77,8 +77,8 @@ iter_phy(){
 				for (int j=0;j<force_num;j++)
 					(*force_buff[j])(ball_buff[i]);
 			}//if
+			if (use_qt)	qt_insert(ball_buff[i],qt);
 		}//if
-		if (use_qt)	qt_insert(ball_buff[i],qt);
 	}//for i
 }//fn
 
