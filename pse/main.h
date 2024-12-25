@@ -44,7 +44,7 @@
 	void iter_phy();
 	void update_model();
 	
-	void genclick(float x, float y, float vx, float vy);
+	void genclick(float x, float y, float vx, float vy, BALL* b);
 	//void genblast(int x, int y, float velx, float vely, int num);
 	
 	void model_setup();
@@ -61,6 +61,14 @@
 	
 	BALL* mouse_ball=NULL;
 
+	BALL ball_bp={
+			{0.0, 0.0},
+			{0.0, 0.0},
+			{0.0, 0.0},
+			{1.0, 0.5, 0.0, 1.0},
+			0.01,
+			DEFAULT
+		};
 	#define force_num 2
 	//void (*force_buff[force_num])(BALL*)={celastic_wall};
 	//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};

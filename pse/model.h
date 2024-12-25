@@ -18,26 +18,30 @@ model_setup(){
 	//for (int i=0;i<2500;++i)
 	//	genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
 	//			,-1.0+((double)rand()*2.0/RAND_MAX)
-	//			, 0.0 , 0.0 );
+	//			, 0.0 , 0.0, NULL );
 
 	if ( use_qt ) qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 }//fn
 
 void
 update_model(){
+	//color varring ball 
+	ball_bp.color[0]=cos(0.05*t+1.1)*cos(0.05*t+1.1);
+	ball_bp.color[1]=cos(0.07*t+2.6)*cos(0.07*t+2.6);
+	ball_bp.color[2]=cos(0.09*t)*cos(0.09*t);
+
 	float sx=-0.98,
 		  sy=1.0-0.01,
 		  dy=2*0.01,
 		  vx=0.2,//0.2
 		  vy=-0.00;//0.05
 	for (int i=0;i<4;++i)
-		genclick(sx	,sy-dy*i, vx	, vy*(i+1)   );
+		genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
 	
 	if (frameno%60==0){
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}//if
-	//char x[10];scanf("%s",x);////////////////////////////
-	//sleep(0.7);//////////////////////////////////////////
+//	sleep(0.4);//////////////////////////////////////////
 	double rdt=fdt;
 	int substep=8;
 	fdt=fdt/substep;
@@ -82,15 +86,9 @@ iter_phy(){
 }//fn
 
 void
-genclick(float x, float y, float vx, float vy){
-	static BALL ball_bp={
-		{0.0, 0.0},
-		{0.0, 0.0},
-		{0.0, 0.0},
-		{1.0, 0.5, 0.0, 1.0},
-		0.01,
-		DEFAULT
-	};
+genclick(float x, float y, float vx, float vy, BALL* b){
+	if (b==NULL)
+		b=&ball_bp;
 	BALL* a=malloc(sizeof(BALL));
 	assert(a && "malloc failed");
 	*a=ball_bp;

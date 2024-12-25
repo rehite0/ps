@@ -32,7 +32,7 @@ mouse_click_cb(GLFWwindow* win, int button, int action, int mods){
 		glfwGetCursorPos(win,&xpos,&ypos);
 		genclick((float) ( (xpos-(double)hw.w/2.0)*2.0 /(double)hw.w)
 				,(float) ( (ypos-(double)hw.h/2.0)*2.0 /(double)hw.h)*-1.0
-				,0.0,0.05	);
+				,0.0,0.05,NULL	);
 	}//if
 	if (button==GLFW_MOUSE_BUTTON_RIGHT){
 		assert(mouse_ball && "mouse ball is not present");
