@@ -1,7 +1,12 @@
 #pragma once
 
 //globel constants & flags
-	#define use_qt 1
+	#define use_qt
+	#define substeps 1
+//	#define gen_rand 10000
+	#define gen_stream 4
+	#define max_v 2.0
+	#define min_t (1.0/60)/4
 	enum bflags{
 		DEFAULT			=0b00000000 ,
 		NO_COLLISION	=0b00000001 ,
@@ -38,6 +43,7 @@
 	
 	void cinelastic_wall( BALL* a);
 	void celastic_wall( BALL* a);
+	void ckeinetic_stablity(BALL* a);
 	
 	void coll_dect();
 	#ifdef use_qt
@@ -68,7 +74,7 @@
 			{0.0, 0.0},
 			{0.0, 0.0},
 			{1.0, 0.5, 0.0, 1.0},
-			0.01,
+			0.008,
 			DEFAULT
 		};
 
@@ -76,10 +82,10 @@
 		qtree* qt=NULL;
 	#endif
 
-	#define force_num 2
+	#define force_num 3
 	//void (*force_buff[force_num])(BALL*)={celastic_wall};
 	//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
-	void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
+	void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall,ckeinetic_stablity};
 
 #include "model.h"
 #include "forces_and_constrains.h"

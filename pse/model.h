@@ -15,11 +15,13 @@ model_setup(){
 	ball_buff[BALL_COUNT-1]=a;
 	mouse_ball=a;
 	
-	//for (int i=0;i<2500;++i)
-	//	genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
-	//			,-1.0+((double)rand()*2.0/RAND_MAX)
-	//			, 0.0 , 0.0, NULL );
-
+	#ifdef gen_rand
+		for (int i=0;i<gen_rand;++i)
+			genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
+					,-1.0+((double)rand()*2.0/RAND_MAX)
+					, 0.0 , 0.0, NULL );
+	#endif
+	
 	#ifdef use_qt
 		qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 	#endif
@@ -27,27 +29,33 @@ model_setup(){
 
 void
 update_model(){
-	//color varring ball 
-	ball_bp.color[0]=cos(0.05*t+1.1)*cos(0.05*t+1.1);
-	ball_bp.color[1]=cos(0.07*t+2.6)*cos(0.07*t+2.6);
-	ball_bp.color[2]=cos(0.09*t)*cos(0.09*t);
+	//color varring ball
+	float r_bias=1.0,
+		  g_bias=1.0,
+		  b_bias=1.0,
+		  cycle_speed=0.1;
+	ball_bp.color[0]=pow(cos(cycle_speed*r_bias*t),2);
+	ball_bp.color[1]=pow(cos(cycle_speed*g_bias*t+2.0944),2);
+	ball_bp.color[2]=pow(cos(cycle_speed*b_bias*t+4.1887),2);
 
-	float sx=-0.98,
-		  sy=1.0-0.01,
-		  dy=2*0.01,
-		  vx=0.2,
-		  vy=-0.00;
-	for (int i=0;i<4;++i)
-		genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
-	
+	#ifdef gen_stream
+		float sx=-0.98,
+			  sy=1.0-0.01,
+			  dy=2*0.01,
+			  vx=0.2,
+			  vy=-0.00;
+		for (int i=0;i<gen_stream;++i)
+			genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
+	#endif
+
 	if (frameno%60==0){
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}//if
 //	sleep(0.4);//////////////////////////////////////////
 	double rdt=fdt;
-	int substep=8;
-	fdt=fdt/substep;
-	for (int i=0;i<substep;++i){
+	fdt=fdt/substeps;
+	fdt=(fdt<min_t)?fdt:min_t;
+	for (int i=0;i<substeps;++i){
 		iter_phy()	;
 		#ifdef use_qt
 			coll_dect_qt();
