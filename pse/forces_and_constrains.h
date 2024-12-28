@@ -60,8 +60,8 @@ void ckeinetic_stablity(BALL* a){
 	float vx=ptov(a->ppos[0],a->pos[0])
 		,vy=ptov(a->ppos[1],a->pos[1]);
 	if (mod(vx)>max_v)
-		a->ppos[0]=vtop((vx/mod(vx))*max_v*0.002,a->pos[0]);
+		a->ppos[0]=vtop((vx/mod(vx))*max_v*0.001,a->pos[0]);
 	if (mod(vy)>max_v)
-		a->ppos[1]=vtop((vy/mod(vy))*max_v*0.002,a->pos[1]);
+		a->ppos[1]=vtop((vy/mod(vy))*max_v*0.001,a->pos[1]);
 
 }//fn
