@@ -1,6 +1,6 @@
 #pragma once
 
-//globel constants
+//globel constants & flags
 	#define use_qt 1
 	enum bflags{
 		DEFAULT			=0b00000000 ,
@@ -28,8 +28,9 @@
 		unsigned int flag;
 	}BALL;
 
-
-#include "quadtree.h"
+#ifdef use_qt
+	#include "quadtree.h"
+#endif
 
 //fn prototype
 	void fgravity( BALL* a);
@@ -39,7 +40,9 @@
 	void celastic_wall( BALL* a);
 	
 	void coll_dect();
-	void coll_dect_qt();
+	#ifdef use_qt
+		void coll_dect_qt();
+	#endif
 
 	void iter_phy();
 	void update_model();
@@ -54,7 +57,6 @@
 
 //globle var
 	double t,dt,fdt=(1.0/60.0);
-	qtree* qt=NULL;
 	unsigned long long int frameno=0;
 	int BALL_COUNT=0;
 	BALL** ball_buff=NULL;
@@ -69,10 +71,16 @@
 			0.01,
 			DEFAULT
 		};
+
+	#ifdef use_qt
+		qtree* qt=NULL;
+	#endif
+
 	#define force_num 2
 	//void (*force_buff[force_num])(BALL*)={celastic_wall};
 	//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
 	void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall};
+
 #include "model.h"
 #include "forces_and_constrains.h"
 #include "collision.h"

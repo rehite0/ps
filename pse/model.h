@@ -20,7 +20,9 @@ model_setup(){
 	//			,-1.0+((double)rand()*2.0/RAND_MAX)
 	//			, 0.0 , 0.0, NULL );
 
-	if ( use_qt ) qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
+	#ifdef use_qt
+		qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
+	#endif
 }//fn
 
 void
@@ -33,8 +35,8 @@ update_model(){
 	float sx=-0.98,
 		  sy=1.0-0.01,
 		  dy=2*0.01,
-		  vx=0.2,//0.2
-		  vy=-0.00;//0.05
+		  vx=0.2,
+		  vy=-0.00;
 	for (int i=0;i<4;++i)
 		genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
 	
@@ -47,10 +49,11 @@ update_model(){
 	fdt=fdt/substep;
 	for (int i=0;i<substep;++i){
 		iter_phy()	;
-		if (use_qt)
+		#ifdef use_qt
 			coll_dect_qt();
-		else
+		#else
 			coll_dect() ;
+		#endif
 	}//for
 	fdt=rdt;
 }//fn
@@ -80,7 +83,9 @@ iter_phy(){
 		if (ckflg(ball_buff[i]->flag,NO_FORCE)) continue;
 		for (int j=0;j<force_num;j++){
 			(*force_buff[j])(ball_buff[i]);
-			if (use_qt)	qt_insert(ball_buff[i],qt);
+			#ifdef use_qt
+				qt_insert(ball_buff[i],qt);
+			#endif
 		}//for j
 	}//for i
 }//fn

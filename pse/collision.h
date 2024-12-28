@@ -31,7 +31,7 @@ coll_dect(){
 		}//for j
 	}//for i
 }//fn
-
+#ifdef use_qt
 void
 coll_dect_qt(){
 	int i,j;
@@ -72,3 +72,4 @@ coll_dect_qt(){
 	qt_free(qt);
 	qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 }//fn
+#endif
