@@ -82,10 +82,16 @@
 		qtree* qt=NULL;
 	#endif
 
-	#define force_num 3
 	//void (*force_buff[force_num])(BALL*)={celastic_wall};
 	//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
-	void (*force_buff[force_num])(BALL*)={fcentergrav,celastic_wall,ckeinetic_stablity};
+	void (*force_buff[])(BALL*)={
+			ckeinetic_stablity
+			,fgravity
+//			,fcentergrav
+			,celastic_wall
+//			,cinelastic_wall
+	};
+	#define force_num sizeof(force_buff)/sizeof(*force_buff)
 
 #include "model.h"
 #include "forces_and_constrains.h"

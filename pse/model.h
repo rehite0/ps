@@ -42,7 +42,7 @@ update_model(){
 		float sx=-0.98,
 			  sy=1.0-0.01,
 			  dy=2*0.01,
-			  vx=0.2,
+			  vx=2.5,
 			  vy=-0.00;
 		for (int i=0;i<gen_stream;++i)
 			genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
@@ -51,7 +51,7 @@ update_model(){
 	if (frameno%60==0){
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}//if
-//	sleep(0.4);//////////////////////////////////////////
+	sleep(1.4);//////////////////////////////////////////
 	double rdt=fdt;
 	fdt=fdt/substeps;
 	fdt=(fdt<min_t)?fdt:min_t;
