@@ -4,9 +4,10 @@
 	#define use_qt
 	#define substeps 1
 //	#define gen_rand 10000
-	#define gen_stream 4
-	#define max_v 2.0
+	#define gen_stream 9
+	#define max_v 2.5
 	#define min_t (1.0/60)/4
+	#define C_RAD 0.008
 	enum bflags{
 		DEFAULT			=0b00000000 ,
 		NO_COLLISION	=0b00000001 ,
@@ -62,7 +63,7 @@
 	void* prep_buff(BALL** balls,int num,int* size,int* stride);
 
 //globle var
-	double t,dt,fdt=(1.0/60.0);
+	double t,dt,fdt=(1.0/(60.0*4.0));
 	unsigned long long int frameno=0;
 	int BALL_COUNT=0;
 	BALL** ball_buff=NULL;
@@ -74,7 +75,7 @@
 			{0.0, 0.0},
 			{0.0, 0.0},
 			{1.0, 0.5, 0.0, 1.0},
-			0.008,
+			C_RAD,
 			DEFAULT
 		};
 

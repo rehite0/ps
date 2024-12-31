@@ -38,23 +38,14 @@ update_model(){
 	ball_bp.color[1]=pow(cos(cycle_speed*g_bias*t+2.0944),2);
 	ball_bp.color[2]=pow(cos(cycle_speed*b_bias*t+4.1887),2);
 
-	#ifdef gen_stream
-		float sx=-0.98,
-			  sy=1.0-0.01,
-			  dy=2*0.01,
-			  vx=2.5,
-			  vy=-0.00;
-		for (int i=0;i<gen_stream;++i)
-			genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
-	#endif
-
+	
 	if (frameno%60==0){
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}//if
-	sleep(1.4);//////////////////////////////////////////
+	//sleep(1.4);//////////////////////////////////////////
 	double rdt=fdt;
 	fdt=fdt/substeps;
-	fdt=(fdt<min_t)?fdt:min_t;
+	fdt=(fdt<min_t && fdt)?fdt:min_t;
 	for (int i=0;i<substeps;++i){
 		iter_phy()	;
 		#ifdef use_qt
@@ -64,6 +55,18 @@ update_model(){
 		#endif
 	}//for
 	fdt=rdt;
+#ifdef gen_stream
+	if (frameno%(int)((C_RAD+0.01*2.0/fdt)/0.5)==0){
+		float sx=-1+C_RAD,
+			  sy=1.0-C_RAD,
+			  dy=2*C_RAD,
+			  vx=0.5,
+			  vy=-0.00;
+		for (int i=0;i<gen_stream;++i)
+			genclick(sx	,sy-dy*i, vx	, vy*(i+1)  , NULL);
+	}
+	#endif
+
 }//fn
 
 void
