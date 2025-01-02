@@ -52,7 +52,7 @@ update_model(){
 		#endif
 	}//for
 #ifdef gen_stream
-	if (frameno%(int)((C_RAD+0.001)*2.0/(fdt*0.5*substeps))==0){
+	if (frameno%(int)((C_RAD+0.003)*2.0/(fdt*0.5*substeps))==0){
 		float sx=-1+C_RAD,
 			  sy=1.0-C_RAD,
 			  dy=2*C_RAD,
