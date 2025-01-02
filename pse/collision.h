@@ -64,13 +64,13 @@ void coll_resolver(BALL* a,BALL* b){
 			bvx=ptov(b->ppos[0],b->pos[0]),
 			bvy=ptov(b->ppos[1],b->pos[1]);
 	if (mod(avx)>max_coll_rcv_v)
-		a->ppos[0]=vtop(max_coll_rcv_v,a->pos[0]);
+		a->ppos[0]=vtop(sig(avx)*max_coll_rcv_v,a->pos[0]);
 	if (mod(avy)>max_coll_rcv_v)
-		a->ppos[1]=vtop(max_coll_rcv_v,a->pos[1]);
+		a->ppos[1]=vtop(sig(avy)*max_coll_rcv_v,a->pos[1]);
 	if (mod(bvx)>max_coll_rcv_v)
-		b->ppos[0]=vtop(max_coll_rcv_v,b->pos[0]);
+		b->ppos[0]=vtop(sig(bvx)*max_coll_rcv_v,b->pos[0]);
 	if (mod(bvy)>max_coll_rcv_v)
-		b->ppos[1]=vtop(max_coll_rcv_v,b->pos[1]);
+		b->ppos[1]=vtop(sig(bvy)*max_coll_rcv_v,b->pos[1]);
 
 	#endif
 	}

@@ -2,6 +2,7 @@
 
 //globel constants & flags
 	#define use_qt
+	#define mthreads 12
 	#define substeps 1
 	#define gen_rand 20000
 	#define gen_stream 20
@@ -21,6 +22,7 @@
 //macro functions
 	#define abs2(o)		(o[0]*o[0] + o[1]*o[1])
 	#define mod(x) 		((x>0)? x:-1*x)
+	#define sig(x) 		((x>=0)? 1:-1)
 	#define vtop(v,p)	((p)-(v)*fdt)
 	#define ptov(pp,p)	(((p)-(pp))/fdt)
 	#define ckflg(v,f)	(((v)&(f))!=0)
