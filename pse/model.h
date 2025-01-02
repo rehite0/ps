@@ -43,9 +43,6 @@ update_model(){
 		fprintf(stdout,"ball count:%i \nframerate:%lf\n\n",BALL_COUNT,(double)1/dt);
 	}//if
 	//sleep(1.4);//////////////////////////////////////////
-	double rdt=fdt;
-	fdt=fdt/substeps;
-	fdt=(fdt<min_t && fdt)?fdt:min_t;
 	for (int i=0;i<substeps;++i){
 		iter_phy()	;
 		#ifdef use_qt
@@ -54,7 +51,6 @@ update_model(){
 			coll_dect() ;
 		#endif
 	}//for
-	fdt=rdt;
 #ifdef gen_stream
 	if (frameno%(int)((C_RAD+0.001)*2.0/(fdt*0.5*substeps))==0){
 		float sx=-1+C_RAD,

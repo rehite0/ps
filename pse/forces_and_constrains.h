@@ -2,7 +2,7 @@
 
 void
 fgravity(BALL* a){
-	a->acc[1]-=3.5*substeps*substeps;
+	a->acc[1]-=.5*substeps*substeps;
 }//fn
 
 void
@@ -60,9 +60,9 @@ void ckeinetic_stablity(BALL* a){
 	float vx=ptov(a->ppos[0],a->pos[0])
 		,vy=ptov(a->ppos[1],a->pos[1]);
 	if (mod(vx)>max_v)
-		a->ppos[0]=vtop(0.0,a->pos[0]);
+		a->ppos[0]=vtop(vx-0.15*vx/max_v,a->pos[0]);
 	if (mod(vy)>max_v)
-		a->ppos[1]=vtop(0.0,a->pos[1]);
+		a->ppos[1]=vtop(vy-0.15*vy/max_v,a->pos[1]);
 
 }//fn
 

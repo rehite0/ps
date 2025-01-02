@@ -2,10 +2,10 @@
 
 //globel constants & flags
 	#define use_qt
-	#define substeps 8
+	#define substeps 4
 //	#define gen_rand 10000
 	#define gen_stream 9
-	#define max_v 7.5
+	#define max_v 5
 	#define min_t (1.0/60)/4
 	#define C_RAD 0.008
 	enum bflags{
@@ -64,7 +64,7 @@
 	void* prep_buff(BALL** balls,int num,int* size,int* stride);
 
 //globle var
-	double t,dt,fdt=(1.0/(60.0*8.0));
+	double t,dt,fdt=(1.0/(60.0*substeps)<min_t)?1.0/(60.0*substeps):min_t;
 	int BALL_COUNT=0;
 	BALL** ball_buff=NULL;
 	
@@ -84,8 +84,8 @@
 	#endif
 
 	void (*force_buff[])(BALL*)={
-//			ckeinetic_stablity
-			cair_resis
+			ckeinetic_stablity
+			//cair_resis
 			,fgravity
 //			,fcentergrav
 			,celastic_wall
