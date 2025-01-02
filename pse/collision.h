@@ -12,22 +12,7 @@ coll_dect(){
 			BALL* a=ball_buff[i];
 			BALL* b=ball_buff[j];
 
-			double axis[2]={
-					a->pos[0]-b->pos[0],
-					a->pos[1]-b->pos[1]};
-			double dist,delta;
-			dist=sqrt(abs2(axis));
-			delta=(a->rad+b->rad)-dist;
-			if (delta>0.0){
-				if (!ckflg(a->flag,NO_MOVE)){
-					a->pos[0]+=0.5f*delta*axis[0]/dist;
-					a->pos[1]+=0.5f*delta*axis[1]/dist;
-				}
-				if (!ckflg(b->flag,NO_MOVE)){
-					b->pos[0]-=0.5f*delta*axis[0]/dist;
-					b->pos[1]-=0.5f*delta*axis[1]/dist;
-				}
-			}
+			coll_resolver(a,b);
 		}//for j
 	}//for i
 }//fn
@@ -50,26 +35,43 @@ coll_dect_qt(){
 
 			BALL* a=ball_buff[i];
 			BALL* b=buff[j];
-
-			double axis[2]={
-					a->pos[0]-b->pos[0],
-					a->pos[1]-b->pos[1]};
-			double dist,delta;
-			dist=sqrt(abs2(axis));
-			delta=(a->rad+b->rad)-dist;
-			if (delta>0.0){
-				if (!ckflg(a->flag,NO_MOVE)){
-					a->pos[0]+=0.5f*delta*axis[0]/dist;
-					a->pos[1]+=0.5f*delta*axis[1]/dist;
-				}
-				if (!ckflg(b->flag,NO_MOVE)){
-					b->pos[0]-=0.5f*delta*axis[0]/dist;
-					b->pos[1]-=0.5f*delta*axis[1]/dist;
-				}
-			}
+			coll_resolver(a,b);
 		}//for j
 	}//for i
 	qt_free(qt);
 	qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 }//fn
 #endif
+void coll_resolver(BALL* a,BALL* b){
+	double axis[2]={
+					a->pos[0]-b->pos[0],
+					a->pos[1]-b->pos[1]};
+	double dist,delta;
+	dist=sqrt(abs2(axis));
+	delta=(a->rad+b->rad)-dist;
+	if (delta>0.0){
+		if (!ckflg(a->flag,NO_MOVE)){
+			a->pos[0]+=0.5f*delta*axis[0]/dist;
+			a->pos[1]+=0.5f*delta*axis[1]/dist;
+		}
+		if (!ckflg(b->flag,NO_MOVE)){
+			b->pos[0]-=0.5f*delta*axis[0]/dist;
+			b->pos[1]-=0.5f*delta*axis[1]/dist;
+		}
+	#ifdef max_coll_rcv_v
+		float avx=ptov(a->ppos[0],a->pos[0]),
+			avy=ptov(a->ppos[1],a->pos[1]),
+			bvx=ptov(b->ppos[0],b->pos[0]),
+			bvy=ptov(b->ppos[1],b->pos[1]);
+	if (mod(avx)>max_coll_rcv_v)
+		a->ppos[0]=vtop(max_coll_rcv_v,a->pos[0]);
+	if (mod(avy)>max_coll_rcv_v)
+		a->ppos[1]=vtop(max_coll_rcv_v,a->pos[1]);
+	if (mod(bvx)>max_coll_rcv_v)
+		b->ppos[0]=vtop(max_coll_rcv_v,b->pos[0]);
+	if (mod(bvy)>max_coll_rcv_v)
+		b->ppos[1]=vtop(max_coll_rcv_v,b->pos[1]);
+
+	#endif
+	}
+}

@@ -2,12 +2,13 @@
 
 //globel constants & flags
 	#define use_qt
-	#define substeps 4
-//	#define gen_rand 10000
-	#define gen_stream 9
+	#define substeps 1
+	#define gen_rand 20000
+	#define gen_stream 20
 	#define max_v 5
 	#define min_t (1.0/60)/4
-	#define C_RAD 0.008
+	#define C_RAD 0.004
+	#define max_coll_rcv_v 1.0
 	enum bflags{
 		DEFAULT			=0b00000000 ,
 		NO_COLLISION	=0b00000001 ,
@@ -47,6 +48,7 @@
 	void cair_resis(BALL* a);
 	void ckeinetic_stablity(BALL* a);
 	
+	void coll_resolver(BALL* a,BALL* b);
 	void coll_dect();
 	#ifdef use_qt
 		void coll_dect_qt();
@@ -84,9 +86,9 @@
 	#endif
 
 	void (*force_buff[])(BALL*)={
-			ckeinetic_stablity
-			//cair_resis
-			,fgravity
+//			ckeinetic_stablity
+//			cair_resis
+			fgravity
 //			,fcentergrav
 			,celastic_wall
 //			,cinelastic_wall
