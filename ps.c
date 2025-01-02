@@ -197,7 +197,7 @@ main(void)
 	glfwDestroyWindow(win_main);
 	if (ball_buff) free_model(ball_buff);
 	#ifdef use_qt
-		if (qt) qt_free(qt);
+		if (qt) arena_del();
 	#endif
 	err_log(0,"application terminated");
 }//main

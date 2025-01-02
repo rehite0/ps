@@ -2,10 +2,10 @@
 
 //globel constants & flags
 	#define use_qt
-	#define substeps 1
+	#define substeps 8
 //	#define gen_rand 10000
 	#define gen_stream 9
-	#define max_v 2.5
+	#define max_v 7.5
 	#define min_t (1.0/60)/4
 	#define C_RAD 0.008
 	enum bflags{
@@ -20,8 +20,8 @@
 //macro functions
 	#define abs2(o)		(o[0]*o[0] + o[1]*o[1])
 	#define mod(x) 		((x>0)? x:-1*x)
-	#define vtop(v,p)	(p-v*fdt)
-	#define ptov(pp,p)	((p-pp)/fdt)
+	#define vtop(v,p)	((p)-(v)*fdt)
+	#define ptov(pp,p)	(((p)-(pp))/fdt)
 	#define ckflg(v,f)	(((v)&(f))!=0)
 
 //types
@@ -35,7 +35,7 @@
 	}BALL;
 
 #ifdef use_qt
-	#include "quadtree.h"
+	#include "qt/quadtree.h"
 #endif
 
 //fn prototype
@@ -44,6 +44,7 @@
 	
 	void cinelastic_wall( BALL* a);
 	void celastic_wall( BALL* a);
+	void cair_resis(BALL* a);
 	void ckeinetic_stablity(BALL* a);
 	
 	void coll_dect();
@@ -63,8 +64,7 @@
 	void* prep_buff(BALL** balls,int num,int* size,int* stride);
 
 //globle var
-	double t,dt,fdt=(1.0/(60.0*4.0));
-	unsigned long long int frameno=0;
+	double t,dt,fdt=(1.0/(60.0*8.0));
 	int BALL_COUNT=0;
 	BALL** ball_buff=NULL;
 	
@@ -78,15 +78,14 @@
 			C_RAD,
 			DEFAULT
 		};
-
+	unsigned long long int frameno=0;
 	#ifdef use_qt
-		qtree* qt=NULL;
+		qtidx qt=0;
 	#endif
 
-	//void (*force_buff[force_num])(BALL*)={celastic_wall};
-	//void (*force_buff[force_num])(BALL*)={fgravity,celastic_wall};
 	void (*force_buff[])(BALL*)={
-			ckeinetic_stablity
+//			ckeinetic_stablity
+			cair_resis
 			,fgravity
 //			,fcentergrav
 			,celastic_wall

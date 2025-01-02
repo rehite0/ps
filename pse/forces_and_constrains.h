@@ -2,14 +2,14 @@
 
 void
 fgravity(BALL* a){
-	a->acc[1]-=1.5;
+	a->acc[1]-=3.5*substeps*substeps;
 }//fn
 
 void
 fcentergrav( BALL* a){
 	float pv=sqrt(abs2(a->pos));
-	a->acc[0]-=a->pos[0]*3.0/pv;
-	a->acc[1]-=a->pos[1]*3.0/pv;
+	a->acc[0]-=a->pos[0]*(1.5/substeps)/pv;
+	a->acc[1]-=a->pos[1]*(1.5/substeps)/pv;
 }//fn
 void
 celastic_wall(BALL* a){
@@ -60,8 +60,19 @@ void ckeinetic_stablity(BALL* a){
 	float vx=ptov(a->ppos[0],a->pos[0])
 		,vy=ptov(a->ppos[1],a->pos[1]);
 	if (mod(vx)>max_v)
-		a->ppos[0]=vtop((vx/mod(vx))*max_v*0.001,a->pos[0]);
+		a->ppos[0]=vtop(0.0,a->pos[0]);
 	if (mod(vy)>max_v)
-		a->ppos[1]=vtop((vy/mod(vy))*max_v*0.001,a->pos[1]);
+		a->ppos[1]=vtop(0.0,a->pos[1]);
+
+}//fn
+
+void cair_resis(BALL* a){
+	return;///////////////////////////////////////////////////////////////////////////////////////////
+	float vx=ptov(a->ppos[0],a->pos[0])
+		,vy=ptov(a->ppos[1],a->pos[1]);
+
+	a->ppos[0]=vtop(vx,a->pos[0]);
+	a->ppos[1]=vtop(vy,a->pos[1]);
+	//fprintf(stdout,"%f:%f\n",a->ppos[0],a->ppos[1]);/////////////////////////////////////////////
 
 }//fn
