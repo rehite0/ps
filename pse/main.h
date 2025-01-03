@@ -2,9 +2,9 @@
 
 //globel constants & flags
 	#define use_qt
-	#define mthreads 12
+//	#define mthreads 12
 	#define substeps 1
-	#define gen_rand 20000
+	#define gen_rand 40000
 	#define gen_stream 20
 	#define max_v 5
 	#define min_t (1.0/60)/4
@@ -40,25 +40,36 @@
 #ifdef use_qt
 	#include "qt/quadtree.h"
 #endif
+#ifdef mthreads
+	#include "pthread.h"
+#endif
 
 //fn prototype
-	void fgravity( BALL* a);
-	void fcentergrav( BALL* a);
+		void fgravity( BALL* a);
+		void fcentergrav( BALL* a);
 	
-	void cinelastic_wall( BALL* a);
-	void celastic_wall( BALL* a);
-	void cair_resis(BALL* a);
-	void ckeinetic_stablity(BALL* a);
+
+		void cinelastic_wall( BALL* a);
+		void celastic_wall( BALL* a);
+		void cair_resis(BALL* a);
+		void ckeinetic_stablity(BALL* a);
 	
-	void coll_resolver(BALL* a,BALL* b);
-	void coll_dect();
+
+		void coll_resolver(BALL* a,BALL* b);
+		void coll_dect();
 	#ifdef use_qt
 		void coll_dect_qt();
 	#endif
 
-	void iter_phy();
-	void update_model();
+
+		void iter_phy();
+		void phy_logic(int i);
+	#ifdef mthreads
+		void iter_phy_mt();
+	#endif
+		void update_model();
 	
+
 	void genclick(float x, float y, float vx, float vy, BALL* b);
 	//void genblast(int x, int y, float velx, float vely, int num);
 	
@@ -85,6 +96,9 @@
 	unsigned long long int frameno=0;
 	#ifdef use_qt
 		qtidx qt=0;
+	#endif
+	#ifdef mthreads
+		pthread_t tid[mthreads];
 	#endif
 
 	void (*force_buff[])(BALL*)={

@@ -44,7 +44,12 @@ update_model(){
 	}//if
 	//sleep(1.4);//////////////////////////////////////////
 	for (int i=0;i<substeps;++i){
-		iter_phy()	;
+		#ifdef mthreads
+			iter_phy_mt();
+		#else
+			iter_phy();
+		#endif
+
 		#ifdef use_qt
 			coll_dect_qt();
 		#else
@@ -66,36 +71,68 @@ update_model(){
 }//fn
 
 void
-iter_phy(){
-	int i;
-	for (i=0;i<BALL_COUNT;++i){
-		if (ckflg(ball_buff[i]->flag,NO_MOVE)) continue;
+phy_logic(int i){
+	if (ckflg(ball_buff[i]->flag,NO_MOVE)) return;
 			
-		float px=ball_buff[i]->ppos[0],py=ball_buff[i]->ppos[1];
-		ball_buff[i]->ppos[0]=ball_buff[i]->pos[0];
-		ball_buff[i]->ppos[1]=ball_buff[i]->pos[1];
+	float px=ball_buff[i]->ppos[0],py=ball_buff[i]->ppos[1];
+	ball_buff[i]->ppos[0]=ball_buff[i]->pos[0];
+	ball_buff[i]->ppos[1]=ball_buff[i]->pos[1];
 
-		ball_buff[i]->pos[0]
-			=ball_buff[i]->pos[0]*2.0
-			-px
-			+ball_buff[i]->acc[0]*fdt*fdt;
-		ball_buff[i]->pos[1]
-			=ball_buff[i]->pos[1]*2.0
-			-py
-			+ball_buff[i]->acc[1]*fdt*fdt;
+	ball_buff[i]->pos[0]
+		=ball_buff[i]->pos[0]*2.0
+		-px
+		+ball_buff[i]->acc[0]*fdt*fdt;
+	ball_buff[i]->pos[1]
+		=ball_buff[i]->pos[1]*2.0
+		-py
+		+ball_buff[i]->acc[1]*fdt*fdt;
 	
-		ball_buff[i]->acc[0]=0.0;
-		ball_buff[i]->acc[1]=0.0;
+	ball_buff[i]->acc[0]=0.0;
+	ball_buff[i]->acc[1]=0.0;
 
-		if (ckflg(ball_buff[i]->flag,NO_FORCE)) continue;
-		for (int j=0;j<force_num;j++){
-			(*force_buff[j])(ball_buff[i]);
-			#ifdef use_qt
-				qt_insert(ball_buff[i],qt);
-			#endif
-		}//for j
+	if (ckflg(ball_buff[i]->flag,NO_FORCE)) return;
+	for (int j=0;j<force_num;j++)
+		(*force_buff[j])(ball_buff[i]);
+
+	#if defined(use_qt) && !defined(mthreads)
+		qt_insert(ball_buff[i],qt);
+	#endif
+}
+void
+iter_phy(){
+	for (int i=0;i<BALL_COUNT;++i){
+		phy_logic(i);
 	}//for i
 }//fn
+
+#ifdef mthreads
+void*
+_iter_phy_mt_routine(void* ptr){
+	int start=((int*)ptr)[0],stop=((int*)ptr)[1];
+	for (int i=start;i<stop;++i)
+		phy_logic(i);	
+}
+void
+iter_phy_mt(){
+	int work_idx[mthreads+1][2];
+	int num_work=BALL_COUNT/(mthreads+1);
+	for (int i=0;i<mthreads;++i){
+		work_idx[i][0]=i*num_work;
+		work_idx[i][1]=(i+1)*num_work;
+		pthread_create(&(tid[i]),NULL,&_iter_phy_mt_routine,(void*)&(work_idx[i]));
+	}
+	work_idx[mthreads][0]=mthreads*num_work;
+	work_idx[mthreads][1]=BALL_COUNT;
+	_iter_phy_mt_routine(&(work_idx[mthreads]));
+	for (int i=0;i<mthreads;++i)
+		pthread_join(tid[i],NULL);
+
+	for (int i=0;i<BALL_COUNT;++i){
+		phy_logic(i);
+	}//for i
+
+}
+#endif
 
 void
 genclick(float x, float y, float vx, float vy, BALL* b){
