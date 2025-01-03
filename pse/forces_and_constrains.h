@@ -2,7 +2,7 @@
 
 void
 fgravity(BALL* a){
-	a->acc[1]-=.5*substeps*substeps;
+	a->acc[1]-=1.5;
 }//fn
 
 void

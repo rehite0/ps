@@ -77,7 +77,6 @@ phy_logic(int i){
 	float px=ball_buff[i]->ppos[0],py=ball_buff[i]->ppos[1];
 	ball_buff[i]->ppos[0]=ball_buff[i]->pos[0];
 	ball_buff[i]->ppos[1]=ball_buff[i]->pos[1];
-
 	ball_buff[i]->pos[0]
 		=ball_buff[i]->pos[0]*2.0
 		-px
@@ -90,13 +89,14 @@ phy_logic(int i){
 	ball_buff[i]->acc[0]=0.0;
 	ball_buff[i]->acc[1]=0.0;
 
+	#if defined(use_qt) && !defined(mthreads)
+		qt_insert(ball_buff[i],qt);
+	#endif
+
 	if (ckflg(ball_buff[i]->flag,NO_FORCE)) return;
 	for (int j=0;j<force_num;j++)
 		(*force_buff[j])(ball_buff[i]);
 
-	#if defined(use_qt) && !defined(mthreads)
-		qt_insert(ball_buff[i],qt);
-	#endif
 }
 void
 iter_phy(){
@@ -119,18 +119,19 @@ iter_phy_mt(){
 	for (int i=0;i<mthreads;++i){
 		work_idx[i][0]=i*num_work;
 		work_idx[i][1]=(i+1)*num_work;
-		pthread_create(&(tid[i]),NULL,&_iter_phy_mt_routine,(void*)&(work_idx[i]));
+		pthread_create(&(tid[i]),NULL,&_iter_phy_mt_routine,(void*)(work_idx[i]));
 	}
 	work_idx[mthreads][0]=mthreads*num_work;
 	work_idx[mthreads][1]=BALL_COUNT;
-	_iter_phy_mt_routine(&(work_idx[mthreads]));
+	_iter_phy_mt_routine(work_idx+mthreads);
 	for (int i=0;i<mthreads;++i)
 		pthread_join(tid[i],NULL);
 
+	#if defined(use_qt)
 	for (int i=0;i<BALL_COUNT;++i){
-		phy_logic(i);
+		qt_insert(ball_buff[i],qt);
 	}//for i
-
+	#endif
 }
 #endif
 

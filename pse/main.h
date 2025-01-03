@@ -2,7 +2,7 @@
 
 //globel constants & flags
 	#define use_qt
-//	#define mthreads 12
+	#define mthreads 15
 	#define substeps 1
 	#define gen_rand 40000
 	#define gen_stream 20
