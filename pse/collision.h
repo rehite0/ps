@@ -83,6 +83,9 @@ coll_dect_mt(){
 	_coll_dect_mt_routine(work_idx+mthreads);
 	for (int i=0;i<mthreads;++i)
 		pthread_join(tid[i],NULL);
+	qt_free(qt);
+	qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
+
 }
 #endif
 
