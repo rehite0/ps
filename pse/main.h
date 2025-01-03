@@ -4,7 +4,7 @@
 	#define use_qt
 	#define mthreads 15
 	#define substeps 1
-	#define gen_rand 40000
+	#define gen_rand 00
 	#define gen_stream 20
 	#define max_v 5
 	#define min_t (1.0/60)/4
@@ -57,10 +57,12 @@
 
 		void coll_resolver(BALL* a,BALL* b);
 		void coll_dect();
-	#ifdef use_qt
+	#if defined(use_qt) && !defined(mthreads)
 		void coll_dect_qt();
 	#endif
-
+	#ifdef mthreads
+		void coll_dect_mt();
+	#endif
 
 		void iter_phy();
 		void phy_logic(int i);

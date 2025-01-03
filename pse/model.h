@@ -50,10 +50,12 @@ update_model(){
 			iter_phy();
 		#endif
 
-		#ifdef use_qt
+		#if defined(mthreads)
+			coll_dect_mt();
+		#elif defined(use_qt)
 			coll_dect_qt();
 		#else
-			coll_dect() ;
+			coll_dect();
 		#endif
 	}//for
 #ifdef gen_stream
@@ -127,7 +129,7 @@ iter_phy_mt(){
 	for (int i=0;i<mthreads;++i)
 		pthread_join(tid[i],NULL);
 
-	#if defined(use_qt)
+	#if defined(use_qt)///////////////////////////////////////////////////////////////////
 	for (int i=0;i<BALL_COUNT;++i){
 		qt_insert(ball_buff[i],qt);
 	}//for i

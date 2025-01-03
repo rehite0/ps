@@ -37,11 +37,55 @@ coll_dect_qt(){
 			BALL* b=buff[j];
 			coll_resolver(a,b);
 		}//for j
+		free(buff);
 	}//for i
 	qt_free(qt);
 	qt=qt_create((bod){1.0,-1.0,1.0,-1.0});
 }//fn
 #endif
+
+#ifdef mthreads
+void*
+_coll_dect_mt_routine(void* ptr){
+	int start=((int*)ptr)[0],stop=((int*)ptr)[1];
+	int i,j;
+	for (i=start;i<stop;++i){
+		int s=0;
+		BALL** buff=qt_query_range_sq(qt,(bod){
+				ball_buff[i]->pos[0]+2*ball_buff[i]->rad,
+				ball_buff[i]->pos[0]-2*ball_buff[i]->rad,
+				ball_buff[i]->pos[1]+2*ball_buff[i]->rad,
+				ball_buff[i]->pos[1]-2*ball_buff[i]->rad
+				},&s);
+		for (j=0;j<s;++j){
+			if (   ckflg(ball_buff[i]->flag,NO_COLLISION)
+				|| ckflg(buff[j]->flag,NO_COLLISION)
+				|| ball_buff[i]==buff[j]	) continue;
+
+			BALL* a=ball_buff[i];
+			BALL* b=buff[j];
+			coll_resolver(a,b);
+		}
+		free(buff);
+	}
+}
+void
+coll_dect_mt(){
+	int work_idx[mthreads+1][2];
+	int num_work=BALL_COUNT/(mthreads+1);
+	for (int i=0;i<mthreads;++i){
+		work_idx[i][0]=i*num_work;
+		work_idx[i][1]=(i+1)*num_work;
+		pthread_create(&(tid[i]),NULL,&_coll_dect_mt_routine,(void*)(work_idx[i]));
+	}
+	work_idx[mthreads][0]=mthreads*num_work;
+	work_idx[mthreads][1]=BALL_COUNT;
+	_coll_dect_mt_routine(work_idx+mthreads);
+	for (int i=0;i<mthreads;++i)
+		pthread_join(tid[i],NULL);
+}
+#endif
+
 void coll_resolver(BALL* a,BALL* b){
 	double axis[2]={
 					a->pos[0]-b->pos[0],
