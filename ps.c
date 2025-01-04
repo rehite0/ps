@@ -41,7 +41,7 @@ main(void)
 		glGenBuffers(1, &vbo);
 
 		int size,stride;
-		void* buff=prep_buff(ball_buff,BALL_COUNT,&size,&stride);
+		void* buff=prep_buff(&size,&stride);
 
 			glBindVertexArray(vao);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -137,7 +137,7 @@ main(void)
 
 		glUseProgram(pid);
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		free(bvs);free(bfs);
 //load shader
 
@@ -179,7 +179,7 @@ main(void)
 
 		update_model();
 		int size;
-		void* buff=prep_buff(ball_buff,BALL_COUNT,&size,0);
+		void* buff=prep_buff(&size,0);
 
 		if (size && buff){
 			glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);

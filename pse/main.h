@@ -5,11 +5,11 @@
 	#define mthreads 15
 	#define substeps 1
 	#define gen_rand 50000
-	#define gen_stream 80
+//	#define gen_stream 80
 	#define max_v 5
-	#define min_t (1.0/60)/4
-	#define C_RAD 0.003
-	#define max_coll_rcv_v 1.0
+	#define min_t (1.0/60)/16
+	#define C_RAD 0.0035
+	#define max_coll_rcv_v 2.0
 	enum bflags{
 		DEFAULT			=0b00000000 ,
 		NO_COLLISION	=0b00000001 ,
@@ -72,13 +72,16 @@
 		void update_model();
 	
 
-	void genclick(float x, float y, float vx, float vy, BALL* b);
-	//void genblast(int x, int y, float velx, float vely, int num);
+		void genclick(float x, float y, float vx, float vy, BALL* b);
+		//void genblast(int x, int y, float velx, float vely, int num);
 	
-	void model_setup();
-	void free_model();
+		void model_setup();
+		void free_model();
 
-	void* prep_buff(BALL** balls,int num,int* size,int* stride);
+		void* prep_buff(int* size,int* stride);
+	#ifdef mthreads
+		void* prep_buff_mt(int* size,int* stride);
+	#endif
 
 //globle var
 	double t,dt,fdt=(1.0/(60.0*substeps)<min_t)?1.0/(60.0*substeps):min_t;

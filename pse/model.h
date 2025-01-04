@@ -16,10 +16,16 @@ model_setup(){
 	mouse_ball=a;
 	
 	#ifdef gen_rand
-		for (int i=0;i<gen_rand;++i)
+		for (int i=0;i<gen_rand;++i){
+			double t=((double)rand()*3.5/RAND_MAX);
+			ball_bp.color[0]=pow(cos(t),2);
+			ball_bp.color[1]=pow(cos(t+2.0944),2);
+			ball_bp.color[2]=pow(cos(t+4.1887),2);
+
 			genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
 					,-1.0+((double)rand()*2.0/RAND_MAX)
 					, 0.0 , 0.0, NULL );
+		}
 	#endif
 	
 	#ifdef use_qt
@@ -125,7 +131,7 @@ iter_phy_mt(){
 	}
 	work_idx[mthreads][0]=mthreads*num_work;
 	work_idx[mthreads][1]=BALL_COUNT;
-	_iter_phy_mt_routine(work_idx+mthreads);
+	_iter_phy_mt_routine(work_idx[mthreads]);
 	for (int i=0;i<mthreads;++i)
 		pthread_join(tid[i],NULL);
 
@@ -165,30 +171,103 @@ free_model(){
 }//fn
 
 void*
-prep_buff(BALL** balls,int num,int* size,int* stride){
+prep_buff(int* size,int* stride){
+#ifdef mthread
+	return prep_buff_mt(size,stride);
+#else
 	struct a{
 		vec4 color;
 		mat4 trans;
 		float radius;
 	};
-	*size=sizeof(struct a)*num;
+	*size=sizeof(struct a)*BALL_COUNT;
 	if (stride){*stride=sizeof(struct a);}
 	if (!(*size)){return NULL;}
 	void* ret=malloc(*size);
 	assert(ret&&"malloc failed");
-	for(int i=0;i<num;++i){
-		if (ckflg(balls[i]->flag,NO_DISPLAY)) continue ;
+	for(int i=0;i<BALL_COUNT;++i){
 
-		vec3 y={balls[i]->pos[0],balls[i]->pos[1],0.0};
+		vec3 y={ball_buff[i]->pos[0],ball_buff[i]->pos[1],0.0};
 		
 		struct a x;
-		x.color[0]=balls[i]->color[0];
-		x.color[1]=balls[i]->color[1];
-		x.color[2]=balls[i]->color[2];
-		x.color[3]=balls[i]->color[3];
-		x.radius=balls[i]->rad;
+		x.color[0]=ball_buff[i]->color[0];
+		x.color[1]=ball_buff[i]->color[1];
+		x.color[2]=ball_buff[i]->color[2];
+		x.color[3]=(ckflg(ball_buff[i]->flag,NO_DISPLAY))?0.0:ball_buff[i]->color[3];
+		x.radius=ball_buff[i]->rad;
 		glm_translate_make(x.trans,y);
 		((struct a *)ret)[i]=x;
 	}//for i
 	return ret;
+#endif
 }//fn
+
+#ifdef mthreads
+void*
+_prep_buff_mt_routine(void* ptr){
+	struct a{
+		vec4 color;
+		mat4 trans;
+		float radius;
+	};
+
+	struct arg{
+		struct a* ret;
+		int work_idx[2];
+	};
+	struct arg ag=*(struct arg*)ptr;
+	int start=ag.work_idx[0],stop=ag.work_idx[1];
+	for (int i=start;i<stop;++i){
+
+		vec3 y={ball_buff[i]->pos[0],ball_buff[i]->pos[1],0.0};
+		
+		struct a x;
+		x.color[0]=ball_buff[i]->color[0];
+		x.color[1]=ball_buff[i]->color[1];
+		x.color[2]=ball_buff[i]->color[2];
+		if(ckflg(ball_buff[i]->flag,NO_DISPLAY))
+			x.color[3]=0.0;
+		else
+			x.color[3]=ball_buff[i]->color[3];
+		x.radius=ball_buff[i]->rad;
+		glm_translate_make(x.trans,y);
+		((struct a *)ag.ret)[i]=x;	
+	}//for i
+}//fn
+
+void*
+prep_buff_mt(int* size,int* stride){
+	struct a{
+		vec4 color;
+		mat4 trans;
+		float radius;
+	};
+
+	*size=sizeof(struct a)*BALL_COUNT;
+	if (stride){*stride=sizeof(struct a);}
+	if (!(*size)){return NULL;}
+	void* ret=malloc(*size);
+	assert(ret&&"malloc failed");
+
+	int work_idx[mthreads+1][2];
+	int num_work=BALL_COUNT/(mthreads+1);
+
+	struct arg{
+		struct a* ret;
+		int work_idx[2];
+	}args[mthreads+1];
+	for (int i=0;i<mthreads;++i){
+		args[i].ret=ret;
+		args[i].work_idx[0]=i*num_work;
+		args[i].work_idx[1]=(i+1)*num_work;
+		pthread_create(&(tid[i]),NULL,&_prep_buff_mt_routine,(void*)(args+i));
+	}
+	args[mthreads].ret=ret;
+	args[mthreads].work_idx[0]=mthreads*num_work;
+	args[mthreads].work_idx[1]=BALL_COUNT;
+	_prep_buff_mt_routine(args+mthreads);
+	for (int i=0;i<mthreads;++i)
+		pthread_join(tid[i],NULL);
+	return ret;
+}//fn
+#endif
