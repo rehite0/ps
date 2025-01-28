@@ -8,7 +8,7 @@
 //	#define gen_stream 80
 	#define max_v 5
 	#define min_t (1.0/60)/16
-	#define C_RAD 0.0035
+	#define C_RAD 0.003
 	#define max_coll_rcv_v 2.0
 	enum bflags{
 		DEFAULT			=0b00000000 ,
@@ -109,13 +109,15 @@
 	void (*force_buff[])(BALL*)={
 //			ckeinetic_stablity
 //			cair_resis
-			fgravity
-//			,fcentergrav
+			//fgravity
+			fcentergrav
 			,celastic_wall
 //			,cinelastic_wall
 	};
 	#define force_num sizeof(force_buff)/sizeof(*force_buff)
-
+//#ifdef mthreads
+//	#include "qt/mt_qt2.h" ///////dependent in project
+//#endif
 #include "model.h"
 #include "forces_and_constrains.h"
 #include "collision.h"

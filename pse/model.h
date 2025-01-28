@@ -17,10 +17,10 @@ model_setup(){
 	
 	#ifdef gen_rand
 		for (int i=0;i<gen_rand;++i){
-			double t=((double)rand()*3.5/RAND_MAX);
-			ball_bp.color[0]=pow(cos(t),2);
-			ball_bp.color[1]=pow(cos(t+2.0944),2);
-			ball_bp.color[2]=pow(cos(t+4.1887),2);
+			//double t=((double)rand()*3.5/RAND_MAX);
+			//ball_bp.color[0]=pow(cos(t),2);
+			//ball_bp.color[1]=pow(cos(t+2.0944),2);
+			//ball_bp.color[2]=pow(cos(t+4.1887),2);
 
 			genclick(-1.0+((double)rand()*2.0/RAND_MAX) 
 					,-1.0+((double)rand()*2.0/RAND_MAX)
@@ -52,6 +52,7 @@ update_model(){
 	for (int i=0;i<substeps;++i){
 		#ifdef mthreads
 			iter_phy_mt();
+		//	qt_insert_all(qt);//////////////////////////////////////////////
 		#else
 			iter_phy();
 		#endif
