@@ -195,7 +195,7 @@ main(void)
 
 	//clean up
 	glfwDestroyWindow(win_main);
-	if (ball_buff) free_model(ball_buff);
+	if (ball_buff) free_model();
 	#ifdef use_qt
 		if (qt) arena_del();
 	#endif
