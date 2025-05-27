@@ -1,24 +1,8 @@
 #pragma once
+#include "pthread.h"
 
 //globel constants & flags
-	#define use_qt
-	#define mthreads 15
-	#define substeps 1
-	#define gen_rand 50000
-//	#define gen_stream 80
-	#define max_v 5
-	#define min_t (1.0/60)/16
-	#define C_RAD 0.003
-	#define max_coll_rcv_v 2.0
-	enum bflags{
-		DEFAULT			=0b00000000 ,
-		NO_COLLISION	=0b00000001 ,
-		NO_FORCE		=0b00000010 ,
-		NO_CONSTRAIN	=0b00000100 ,
-		NO_MOVE			=0b00001000 ,
-		NO_DISPLAY		=0b00010000 
-	};
-
+#include "globals.h>
 //macro functions
 	#define abs2(o)		(o[0]*o[0] + o[1]*o[1])
 	#define mod(x) 		((x>0)? x:-1*x)
@@ -39,9 +23,6 @@
 
 #ifdef use_qt
 	#include "qt/quadtree.h"
-#endif
-#ifdef mthreads
-	#include "pthread.h"
 #endif
 
 //fn prototype
@@ -115,9 +96,8 @@
 //			,cinelastic_wall
 	};
 	#define force_num sizeof(force_buff)/sizeof(*force_buff)
-//#ifdef mthreads
-//	#include "qt/mt_qt2.h" ///////dependent in project
-//#endif
+	#include "qt/mt_qt2.h" ///////dependent in project
+
 #include "model.h"
 #include "forces_and_constrains.h"
 #include "collision.h"
