@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "globals.h"
 #include "gtypes.h"
+#include "qt/quadtree.h"
 #include "forces_and_constrains.h"
 
 double t,dt,fdt=(1.0/(60.0*substeps)<min_t)?1.0/(60.0*substeps):min_t;

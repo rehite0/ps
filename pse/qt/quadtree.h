@@ -1,6 +1,9 @@
+#pragma once
+
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include "../gtypes.h"
 
 typedef BALL _point;
 	//redefine the underlying _point type while using
@@ -52,7 +55,7 @@ qtidx arena_alloc(int s){
 		return _Aused-s;}
 	else{
 		_Asize+=100;
-		_arena=realloc(_arena,_Asize*sizeof(qtree));
+		_arena=(qtree*)realloc(_arena,_Asize*sizeof(qtree));
 		assert(_arena&&"realloc failed");
 		return _Aused-s;
 
@@ -203,7 +206,7 @@ _point** qt_query_range_sq(qtidx t,bod b,int* num){
 				arr[(*num)++]=qat(t).q1.p;
 			}
 		case 0:
-			ret=malloc(sizeof(_point*)*(*num));
+			ret=(_point**)malloc(sizeof(_point*)*(*num));
 			for (int i=0;i<*num;++i) ret[i]=arr[i];
 			return ret;
 		default:
@@ -215,7 +218,7 @@ _point** qt_query_range_sq(qtidx t,bod b,int* num){
 			buff[3]=qt_query_range_sq( qat(t).q4.t, b , (int*)s+3 );
 			//merge buff
 			*num=s[0]+s[1]+s[2]+s[3];
-			ret=malloc(sizeof(_point*)*(*num));
+			ret=(_point**)malloc(sizeof(_point*)*(*num));
 			assert(ret && "malloc failed");
 			int k=0;
 			for (int i=0 ; i<4 ;++i){

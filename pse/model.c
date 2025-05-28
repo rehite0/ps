@@ -1,5 +1,13 @@
 #pragma once
 
+#include "globals.h"
+#include "gtypes.h"
+#include "vars.h"
+#include "model.h"
+#include "mfun.h"
+#include "collision.h"
+
+
 void
 model_setup(){
 	//mouse ball setup
@@ -164,12 +172,12 @@ void
 free_model(){
 	for (int i=0;i<BALL_COUNT;++i){
 		free(ball_buff[i]);
-	}//for i
+	}
 
 	free(ball_buff);
 	ball_buff=NULL;
 	BALL_COUNT=0;
-}//fn
+}
 
 void*
 prep_buff(int* size,int* stride){
@@ -198,10 +206,10 @@ prep_buff(int* size,int* stride){
 		x.radius=ball_buff[i]->rad;
 		glm_translate_make(x.trans,y);
 		((struct a *)ret)[i]=x;
-	}//for i
+	}
 	return ret;
 #endif
-}//fn
+}
 
 #ifdef mthreads
 void*
@@ -233,8 +241,8 @@ _prep_buff_mt_routine(void* ptr){
 		x.radius=ball_buff[i]->rad;
 		glm_translate_make(x.trans,y);
 		((struct a *)ag.ret)[i]=x;	
-	}//for i
-}//fn
+	}
+}
 
 void*
 prep_buff_mt(int* size,int* stride){
@@ -270,5 +278,5 @@ prep_buff_mt(int* size,int* stride){
 	for (int i=0;i<mthreads;++i)
 		pthread_join(tid[i],NULL);
 	return ret;
-}//fn
+}
 #endif

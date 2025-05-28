@@ -1,6 +1,4 @@
 #pragma once
-#include "pthread.h"
-
 //globel constants & flags
 #include "globals.h"
 //macro functions
@@ -16,6 +14,6 @@
 #include "model.h"
 #include "vars.h"
 
-	#include "qt/mt_qt2.h" ///////dependent in project
+//	#include "qt/mt_qt2.h" ///////dependent in project
 
 #include "collision.h"

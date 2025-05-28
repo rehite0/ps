@@ -1,5 +1,10 @@
 #pragma once
 
+#include "globals.h"
+#include "gtypes.h"
+#include "mfun.h"
+#include "forces_and_constrains.h"
+
 void
 fgravity(BALL* a){
 	a->acc[1]-=3.5;

@@ -1,5 +1,11 @@
 #pragma once
 
+#include "globals.h"
+#include "gtypes.h"
+#include "mfun.h"
+#include "vars.h"
+#include "collision.h"
+
 void
 coll_dect(){
 	int i,j;
@@ -91,8 +97,8 @@ coll_dect_mt(){
 
 void coll_resolver(BALL* a,BALL* b){
 	double axis[2]={
-					a->pos[0]-b->pos[0],
-					a->pos[1]-b->pos[1]};
+			a->pos[0]-b->pos[0],
+			a->pos[1]-b->pos[1]};
 	double dist,delta;
 	dist=sqrt(abs2(axis));
 	delta=(a->rad+b->rad)-dist;

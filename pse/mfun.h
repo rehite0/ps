@@ -1,4 +1,5 @@
 #pragma once
+#include "vars.h"
 
 #define abs2(o)		(o[0]*o[0] + o[1]*o[1])
 #define mod(x) 		((x>0)? x:-1*x)

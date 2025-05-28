@@ -1,5 +1,12 @@
 #pragma once
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <assert.h>
+#include <math.h>
+#include <pthread.h>
+
 #define use_qt
 #define mthreads 15
 #define substeps 1
