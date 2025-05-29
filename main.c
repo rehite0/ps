@@ -6,12 +6,13 @@
 #include <unistd.h>
 #include <assert.h>
 #include "main_globals.h"
-//#include "render.h"
+#include "render.h"
 
-GLFWwindow* win_main=NULL;
+static GLFWwindow* win_main=NULL;
 int resolution_x=900; 
 int resolution_y=900; 
-int running=1;
+//rttick
+static int running=1;
 
 void setup_cbs(void);
 
@@ -22,14 +23,16 @@ main(){
     assert(win_main&&"window creation failed");
     glfwMakeContextCurrent(win_main);
     setup_cbs();
-    //render_setup();
+    render_setup();
 
     while(running){
+	render_update();
+	glfwSwapBuffers(win_main);
         glfwPollEvents();
     }
 
     glfwDestroyWindow(win_main);
-    //render_exit();
+    render_exit();
 }
 void 
 err_callback(int error, const char* desc){
