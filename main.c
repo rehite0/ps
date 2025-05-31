@@ -5,13 +5,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <time.h>
+
 #include "main_globals.h"
 #include "render.h"
+#include "pse.h"
 
 static GLFWwindow* win_main=NULL;
 int resolution_x=900; 
 int resolution_y=900; 
-//rttick
+unsigned long rtick; 
 static int running=1;
 
 void setup_cbs(void);
@@ -24,6 +27,7 @@ main(){
     glfwMakeContextCurrent(win_main);
     setup_cbs();
     render_setup();
+    pse_setup();
 
     while(running){
 	render_update();
@@ -32,6 +36,7 @@ main(){
     }
 
     glfwDestroyWindow(win_main);
+    pse_exit();
     render_exit();
 }
 void 

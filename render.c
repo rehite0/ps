@@ -2,23 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+
 #include "render.h"
 
-GLuint vao,vbo,pid;
+static GLuint vao,vbo,pid;
 void render_setup(void){
     assert((glewInit()==GLEW_OK)&&"glew init failed");
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
-    // int size,stride;
-    // void* buff=prep_buff(ball_buff,BALL_COUNT,&size,&stride);
 
     // glBindVertexArray(vao);
     // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    // if (size && buff){
 	    // glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
-	    // free(buff);
-    // }
     // glEnableVertexAttribArray(0);//color
     // glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,stride,0);
     // glEnableVertexAttribArray(1);//radius
