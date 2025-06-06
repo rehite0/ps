@@ -3,125 +3,174 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "ball_api.h"
+#include "pse_const.h"
 #include "render.h"
 
-static GLuint vao,vbo,pid;
+void render_setup(void);
+void render_exit(void);
+void render_update(void);
+static int _compile_shader(
+	char* file
+	,char c	// f=frag v=vert  c=compute
+);
+static void
+_buffer_init(GLuint* bid,int size);
+
+static GLuint vao,pid
+,bposx
+,bposy
+,bpposx
+,bpposy
+,brad
+,bflag
+,bcolor;
 void render_setup(void){
-    assert((glewInit()==GLEW_OK)&&"glew init failed");
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
+	assert((glewInit()==GLEW_OK)&&"glew init failed");
+	//intialise buffer
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	_buffer_init(&bposx,sizeof(*(((struct ball_bufft*)0)->posx)));
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0,1,GL_FLOAT,GL_FALSE,0,0);
+	_buffer_init(&bposy,sizeof(*(((struct ball_bufft*)0)->posy)));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1,1,GL_FLOAT,GL_FALSE,0,0);
+	_buffer_init(&bpposx,sizeof(*(((struct ball_bufft*)0)->pposx)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2,1,GL_FLOAT,GL_FALSE,0,0);
+	_buffer_init(&bpposy,sizeof(*(((struct ball_bufft*)0)->pposy)));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3,1,GL_FLOAT,GL_FALSE,0,0);
+	_buffer_init(&brad,sizeof(*(((struct ball_bufft*)0)->rad)));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4,1,GL_FLOAT,GL_FALSE,0,0);
+	_buffer_init(&bflag,sizeof(*(((struct ball_bufft*)0)->flag)));
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5,1,GL_UNSIGNED_INT,GL_FALSE,0,0);
+	_buffer_init(&bcolor,sizeof(*(((struct ball_bufft*)0)->color)));
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6,4,GL_FLOAT,GL_FALSE,0,0);
 
+	glVertexAttribDivisor(0,1);
+	glVertexAttribDivisor(1,1);
+	glVertexAttribDivisor(2,1);
+	glVertexAttribDivisor(3,1);
+	glVertexAttribDivisor(4,1);
+	glVertexAttribDivisor(5,1);
+	glVertexAttribDivisor(6,1);
+	//load shader
+	pid=glCreateProgram();
+	glAttachShader(pid,_compile_shader("ps.vert.glsl",'v'));
+	glAttachShader(pid,_compile_shader("ps.frag.glsl",'f'));
+	glLinkProgram(pid);
+	glUseProgram(pid);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 
-    // glBindVertexArray(vao);
-    // glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	    // glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
-    // glEnableVertexAttribArray(0);//color
-    // glVertexAttribPointer(0,4,GL_FLOAT,GL_FALSE,stride,0);
-    // glEnableVertexAttribArray(1);//radius
-    // glVertexAttribPointer(1,1,GL_FLOAT,GL_FALSE,stride,(void*)(sizeof(vec4)+sizeof(mat4)));
-    // glEnableVertexAttribArray(2);//pos_transform row1
-    // glVertexAttribPointer(2,4,GL_FLOAT,GL_FALSE,stride,(void*)(1*sizeof(vec4)));
-    // glEnableVertexAttribArray(3);//pos_transform row2
-    // glVertexAttribPointer(3,4,GL_FLOAT,GL_FALSE,stride,(void*)(2*sizeof(vec4)));
-    // glEnableVertexAttribArray(4);//pos_transform row3
-    // glVertexAttribPointer(4,4,GL_FLOAT,GL_FALSE,stride,(void*)(3*sizeof(vec4)));
-    // glEnableVertexAttribArray(5);//pos_transform row4
-    // glVertexAttribPointer(5,4,GL_FLOAT,GL_FALSE,stride,(void*)(4*sizeof(vec4)));
-
-    // glVertexAttribDivisor(0,1);
-    // glVertexAttribDivisor(1,1);
-    // glVertexAttribDivisor(2,1);
-    // glVertexAttribDivisor(3,1);
-    // glVertexAttribDivisor(4,1);
-    // glVertexAttribDivisor(5,1);
-//load shader
-    FILE *vsf, *fsf;
-    char *bvs, *bfs;
-    unsigned long vsl, fsl;
-
-    if (!(vsf=fopen("ps.vert.glsl", "rb")) ||
-	!(fsf=fopen("ps.frag.glsl", "rb")) )
-	assert(0&&"shader opening failed");
-    
-    fseek(vsf, 0, SEEK_END);vsl=(unsigned long)ftell(vsf);
-    bvs=(char*)malloc(vsl+1);
-    fseek(vsf, 0, SEEK_SET);
-    fread(bvs, vsl, 1, vsf);fclose(vsf);
-    bvs[vsl]=0;
-
-    fseek(fsf, 0, SEEK_END);fsl=(unsigned long)ftell(fsf);
-    bfs=(char*)malloc(fsl+1);
-    fseek(fsf, 0, SEEK_SET);
-    fread(bfs, fsl, 1, fsf);fclose(fsf);
-    bfs[fsl]=0;
-
-    GLuint vsid=glCreateShader(GL_VERTEX_SHADER);
-    GLuint fsid=glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(vsid, 1, (const GLchar**)&bvs, 0);
-    glShaderSource(fsid, 1, (const GLchar**)&bfs, 0);
-
-    glCompileShader(vsid);
-    glCompileShader(fsid);
-
-    pid=glCreateProgram();
-    glAttachShader(pid,vsid);
-    glAttachShader(pid,fsid);
-    
-    glLinkProgram(pid);
-//catch error in shader code
-    int iscomp, maxlen;
-    char *InfoLog;
-
-    glGetShaderiv(fsid, GL_COMPILE_STATUS, &iscomp);
-    if(iscomp == 0)
-    {
-	    glGetShaderiv(fsid, GL_INFO_LOG_LENGTH, &maxlen);
-	    InfoLog = (char *)malloc((unsigned long)maxlen);
-
-	    glGetShaderInfoLog(fsid, (unsigned long)maxlen, &maxlen, InfoLog);
-	    printf("shader error:%s",InfoLog);
-	    free(InfoLog);free(bvs);free(bfs);
-	    exit(0);
-    }
-
-    glGetShaderiv(vsid, GL_COMPILE_STATUS, &iscomp);
-    if(iscomp == 0)
-    {
-	    glGetShaderiv(vsid, GL_INFO_LOG_LENGTH, &maxlen);
-	    InfoLog = (char *)malloc((unsigned long)maxlen);
-
-	    glGetShaderInfoLog(fsid, maxlen, &maxlen, InfoLog);
-	    printf("shader error:%s",InfoLog);
-	    free(InfoLog);free(bvs);free(bfs);
-	    exit(0);
-
-    }
-
-    glUseProgram(pid);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-    free(bvs);free(bfs);
-
-    // unsigned int u_tdt,u_hw;
-	    // u_tdt	=glGetUniformLocation(pid,"tdt");
-	    // u_hw	=glGetUniformLocation(pid,"hw");
+	// unsigned int u_tdt,u_hw;
+	// u_tdt	=glGetUniformLocation(pid,"tdt");
+	// u_hw	=glGetUniformLocation(pid,"hw");
 }
 void render_exit(void){
-   (void)0; 
+	glDeleteVertexArrays(1,&vao);
+	glDeleteBuffers(1,&bposx);
+	glDeleteBuffers(1,&bposy);
+	glDeleteBuffers(1,&bpposx);
+	glDeleteBuffers(1,&bpposy);
+	glDeleteBuffers(1,&brad);
+	glDeleteBuffers(1,&bflag);
+	glDeleteBuffers(1,&bcolor);
+	glDeleteProgram(pid); 
 }
 void render_update(void){
-    glClearColor(1.0,1.0,1.0,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(1.0,1.0,1.0,1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-    //glBindVertexArray(vao);
-    //bind pid
-    
-    // dt=glfwGetTime()-t;t=glfwGetTime();
-    // glUniform2f(u_tdt,t,dt);
-    // glUniform2f(u_hw,(float)hw.w,(float)hw.h);
+	glBindVertexArray(vao);
+	glUseProgram(pid);
+	glNamedBufferData(bposx
+				   ,ball_buff.len*sizeof(*(ball_buff.posx))
+				   ,ball_buff.posx,GL_STREAM_DRAW);
+	glNamedBufferData(bposy
+				   ,ball_buff.len*sizeof(*(ball_buff.posy))
+				   ,ball_buff.posy,GL_STREAM_DRAW);
+	glNamedBufferData(bpposx
+				   ,ball_buff.len*sizeof(*(ball_buff.pposx))
+				   ,ball_buff.pposx,GL_STREAM_DRAW);
+	glNamedBufferData(bpposy
+				   ,ball_buff.len*sizeof(*(ball_buff.pposy))
+				   ,ball_buff.pposy,GL_STREAM_DRAW);
+	glNamedBufferData(brad
+				   ,ball_buff.len*sizeof(*(ball_buff.rad))
+				   ,ball_buff.rad,GL_STREAM_DRAW);
+	glNamedBufferData(bflag
+				   ,ball_buff.len*sizeof(*(ball_buff.flag))
+				   ,ball_buff.flag,GL_STREAM_DRAW);
+	glNamedBufferData(bcolor
+				   ,ball_buff.len*sizeof(*(ball_buff.color))
+				   ,ball_buff.color,GL_STREAM_DRAW);
 
-    //update buffer&draw
-    //glBufferData(GL_ARRAY_BUFFER,size,buff,GL_DYNAMIC_DRAW);
-    //glDrawArraysInstanced(GL_TRIANGLES, 0, 6, BALL_COUNT);
+	// dt=glfwGetTime()-t;t=glfwGetTime();
+	// glUniform2f(u_tdt,t,dt);
+	// glUniform2f(u_hw,(float)hw.w,(float)hw.h);
+
+	//update buffer&draw
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, ball_buff.len);
+}
+
+static int
+_compile_shader(
+	char* file
+	,char c	// f=frag v=vert  c=compute(not implimented)
+){
+	FILE *fh;
+	char *buff;
+	unsigned long len;
+	typeof(GL_VERTEX_SHADER) shader_type;
+	switch(c){
+		case 'f':
+			shader_type=GL_FRAGMENT_SHADER;
+			break;
+		case 'v':
+			shader_type=GL_VERTEX_SHADER;
+			break;
+		case 'c':(void)0;
+		default:assert(0&&"wrong flag in compilation");
+	}
+	if (!(fh=fopen(file, "rb")))
+		assert(0&&"shader opening failed");
+	fseek(fh, 0, SEEK_END);
+	len=(unsigned long)ftell(fh);
+	buff=(char*)malloc(len+1);
+	fseek(fh, 0, SEEK_SET);
+	fread(buff, len, 1, fh);
+	fclose(fh);
+	buff[len]=0;
+	GLuint sid=glCreateShader(shader_type);
+	glShaderSource(sid, 1, (const GLchar**)&buff, 0);
+	glCompileShader(sid);
+	free(buff);
+
+	int iscomp, maxlen;
+	char *InfoLog;
+
+	glGetShaderiv(sid, GL_COMPILE_STATUS, &iscomp);
+	if(iscomp == 0)
+	{
+		glGetShaderiv(sid, GL_INFO_LOG_LENGTH, &maxlen);
+		InfoLog = (char *)malloc((unsigned long)maxlen);
+
+		glGetShaderInfoLog(sid, (unsigned long)maxlen, &maxlen, InfoLog);
+		printf("shader error:%s",InfoLog);
+		free(InfoLog);
+		exit(0);
+	}
+	return sid;
+}
+static void
+_buffer_init(GLuint* bid,int size){
+	glGenBuffers(1, bid);
+	glBindBuffer( GL_ARRAY_BUFFER,*bid);
+	glBufferData(GL_ARRAY_BUFFER,MAX_SIZE*size,NULL,GL_STREAM_DRAW);
 }
