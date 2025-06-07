@@ -10,7 +10,7 @@
 void render_setup(void);
 void render_exit(void);
 void render_update(void);
-static int _compile_shader(
+static GLuint _compile_shader(
 	char* file
 	,char c	// f=frag v=vert  c=compute
 );
@@ -116,10 +116,10 @@ void render_update(void){
 	// glUniform2f(u_hw,(float)hw.w,(float)hw.h);
 
 	//update buffer&draw
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, ball_buff.len);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, 6,(int) ball_buff.len);
 }
 
-static int
+static GLuint
 _compile_shader(
 	char* file
 	,char c	// f=frag v=vert  c=compute(not implimented)
@@ -127,7 +127,7 @@ _compile_shader(
 	FILE *fh;
 	char *buff;
 	unsigned long len;
-	typeof(GL_VERTEX_SHADER) shader_type;
+	GLenum shader_type;
 	switch(c){
 		case 'f':
 			shader_type=GL_FRAGMENT_SHADER;

@@ -1,7 +1,7 @@
 #pragma once
 #define t_tick 1.0/60.0
 #define tred 15
-#define MAX_SIZE 1E10
+#define MAX_SIZE ((int)1E10)
 enum bflags{
 	DEFAULT		=0b00000000 ,
 	NO_COLLISION	=0b00000001 ,

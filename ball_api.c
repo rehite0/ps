@@ -54,7 +54,7 @@ void ball_buff_del(void){
      bb->flag	= NULL;
      bb->color	= NULL;
 }
-int ball_append(
+unsigned int ball_append(
     float posx,
     float posy,
     float pposx,
@@ -68,7 +68,7 @@ int ball_append(
 ){
     struct ball_bufft* bb=&ball_buff;
     if(bb->len==bb->size){
-	bb->size*=2.0;
+	bb->size*=2;
 	bb->posx	=(float*) realloc(bb->posx	,bb->size*sizeof(float));
 	bb->posy	=(float*) realloc(bb->posy	,bb->size*sizeof(float));
 	bb->pposx	=(float*) realloc(bb->pposx	,bb->size*sizeof(float));
@@ -86,7 +86,7 @@ int ball_append(
 	assert(bb->color!=NULL);
 	assert(bb->size!=0);
     }
-    int i=bb->len++;
+    unsigned int i=bb->len++;
     bb->posx[i]		= posx;
     bb->posy[i]		= posy;
     bb->pposx[i]	= pposx;

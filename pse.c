@@ -5,7 +5,6 @@
 #include "pse_const.h"
 #include "pse.h"
 #include "ball_api.h"
-#include "render.h"
 
 unsigned long vtick;
 

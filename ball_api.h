@@ -5,7 +5,7 @@ extern void ball_buff_create(void);
 
 extern void ball_buff_del(void);
 
-extern int ball_append(
+extern unsigned int ball_append(
     float posx,
     float posy,
     float pposx,
