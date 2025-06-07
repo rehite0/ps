@@ -1,9 +1,0 @@
-headers::
-1>main_globals.h
-2>render.h
-3>pse.h
-
-modules::	headers	
-1>main.c	1,2,3
-2>render.c	1,2
-3>pse.c

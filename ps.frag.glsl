@@ -2,6 +2,11 @@
 
 precision highp float;
 
+layout(location=0) in flat float posx;
+layout(location=1) in flat float posy;
+layout(location=4) in flat float rad;
+layout(location=5) in flat uint flags;
+layout(location=6) in flat vec4 color;
 //uniform vec2 hw;
 //uniform vec2 tdt;
 
@@ -17,5 +22,5 @@ void main(){
     // float d=length(uv);
     // d=1.0-smoothstep(orad,orad+0.0001,d);
     // out_color=oc_rgb*vec4(d);
-    out_color=vec4(0.0);
+    out_color=color;
 }
