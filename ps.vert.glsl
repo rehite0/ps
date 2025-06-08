@@ -1,27 +1,41 @@
 #version 450
-layout(location=0) in float posx;
-layout(location=1) in float posy;
-layout(location=2) in float pposx;
-layout(location=3) in float pposy;
-layout(location=4) in float rad;
-layout(location=5) in uint flags;
-layout(location=6) in vec4 color;
+layout(location=0) in float vposx;
+layout(location=1) in float vposy;
+layout(location=2) in float vpposx;
+layout(location=3) in float vpposy;
+layout(location=4) in float vrad;
+layout(location=5) in uint vflags;
+layout(location=6) in vec4 vcolor;
+
+out flat float posx;
+out flat float posy;
+out flat float rad;
+out flat uint flags;
+out flat vec4 color;
+out vec2 uv;
 
 const vec3 vert[4]=vec3[4](
-			vec3(+1.1,+1.1,+0.0),
-			vec3(+1.1,-1.1,+0.0),
- 			vec3(-1.1,-1.1,+0.0),
- 			vec3(-1.1,+1.1,+0.0)
+			vec3(+1.0,+1.0,+0.0),
+			vec3(+1.0,-1.0,+0.0),
+ 			vec3(-1.0,-1.0,+0.0),
+ 			vec3(-1.0,+1.0,+0.0)
  			);
 const int idx[6]=int[6](0,1,2, 3,0,2);
 
 void main(){
+	posx=vposx;
+	posy=vposy;
+	rad=vrad;
+	flags=vflags;
+	color=vcolor;
 	mat4 pos=mat4(
-		 vec4(1.,0.,0.,posx)
-		,vec4(0.,1.,0.,posy)
-		,vec4(0.,0.,1.,0.)
+		 vec4(vrad,0.,0.,vposx)
+		,vec4(0.,vrad,0.,vposy)
+		,vec4(0.,0.,vrad,0.)
 		,vec4(0.,0.,0.,1.)
 	);
-	gl_Position=pos*vec4(rad*vert[idx[gl_VertexID]],1.0);
+	int i=idx[gl_VertexID];
+	uv=vert[i].xy;
+	gl_Position=pos*vec4(vert[i],1.0);
 }
 

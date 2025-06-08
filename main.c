@@ -21,23 +21,24 @@ void setup_cbs(void);
 
 int
 main(){
-    assert((glfwInit() == GLFW_TRUE)&&"glfw intialise failed");
-    win_main = glfwCreateWindow(resolution_x , resolution_y , "ps", NULL , NULL);
-    assert(win_main&&"window creation failed");
-    glfwMakeContextCurrent(win_main);
-    setup_cbs();
-    render_setup();
-    pse_setup();
+	assert((glfwInit() == GLFW_TRUE)&&"glfw intialise failed");
+	win_main = glfwCreateWindow(resolution_x , resolution_y , "ps", NULL , NULL);
+	assert(win_main&&"window creation failed");
+	glfwMakeContextCurrent(win_main);
+	setup_cbs();
+	render_setup();
+	pse_setup();
 
-    while(running){
-	render_update();
-	glfwSwapBuffers(win_main);
-        glfwPollEvents();
-    }
+	while(running){
+		glfwGetFramebufferSize(win_main,&resolution_x,&resolution_y);
+		render_update();
+		glfwSwapBuffers(win_main);
+		glfwPollEvents();
+	}
 
-    glfwDestroyWindow(win_main);
-    pse_exit();
-    render_exit();
+	glfwDestroyWindow(win_main);
+	pse_exit();
+	render_exit();
 }
 void 
 err_callback(int error, const char* desc){
@@ -45,19 +46,19 @@ err_callback(int error, const char* desc){
 }
 void
 win_close_cb(GLFWwindow* winid){
-    (void)winid;
-    running=0;
+	(void)winid;
+	running=0;
 }
 void
 setup_cbs(void){
-    glfwSetErrorCallback(err_callback);
-    glfwSetWindowCloseCallback(win_main, win_close_cb);
-//    glfwSetKeyCallback(win_main, key_cb);
-//    glfwSetCharCallback(win_main, char_cb);	
-//    glfwSetScrollCallback(win_main, scroll_cb);
-//    glfwSetCursorPosCallback(win_main, cursor_position_cb);
-//    glfwSetCursorEnterCallback(win_main, cursor_enter_cb);
-//    glfwSetMouseButtonCallback(win_main, mouse_click_cb);
-//    glfwSetDropCallback(win_main, drop_cb);
+	glfwSetErrorCallback(err_callback);
+	glfwSetWindowCloseCallback(win_main, win_close_cb);
+	//    glfwSetKeyCallback(win_main, key_cb);
+	//    glfwSetCharCallback(win_main, char_cb);	
+	//    glfwSetScrollCallback(win_main, scroll_cb);
+	//    glfwSetCursorPosCallback(win_main, cursor_position_cb);
+	//    glfwSetCursorEnterCallback(win_main, cursor_enter_cb);
+	//    glfwSetMouseButtonCallback(win_main, mouse_click_cb);
+	//    glfwSetDropCallback(win_main, drop_cb);
 }
 

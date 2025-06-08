@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "main_globals.h"
 #include "ball_api.h"
 #include "pse_const.h"
 #include "render.h"
@@ -18,13 +19,13 @@ static void
 _buffer_init(GLuint* bid,int size);
 
 static GLuint vao,pid
-,bposx
-,bposy
-,bpposx
-,bpposy
-,brad
-,bflag
-,bcolor;
+	,bposx
+	,bposy
+	,bpposx
+	,bpposy
+	,brad
+	,bflag
+	,bcolor;
 void render_setup(void){
 	assert((glewInit()==GLEW_OK)&&"glew init failed");
 	//intialise buffer
@@ -84,32 +85,33 @@ void render_exit(void){
 	glDeleteProgram(pid); 
 }
 void render_update(void){
+	glViewport(0,0,resolution_x,resolution_y);
 	glClearColor(1.0,1.0,1.0,1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glBindVertexArray(vao);
 	glUseProgram(pid);
 	glNamedBufferData(bposx
-				   ,ball_buff.len*sizeof(*(ball_buff.posx))
-				   ,ball_buff.posx,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.posx))
+		   ,ball_buff.posx,GL_STREAM_DRAW);
 	glNamedBufferData(bposy
-				   ,ball_buff.len*sizeof(*(ball_buff.posy))
-				   ,ball_buff.posy,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.posy))
+		   ,ball_buff.posy,GL_STREAM_DRAW);
 	glNamedBufferData(bpposx
-				   ,ball_buff.len*sizeof(*(ball_buff.pposx))
-				   ,ball_buff.pposx,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.pposx))
+		   ,ball_buff.pposx,GL_STREAM_DRAW);
 	glNamedBufferData(bpposy
-				   ,ball_buff.len*sizeof(*(ball_buff.pposy))
-				   ,ball_buff.pposy,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.pposy))
+		   ,ball_buff.pposy,GL_STREAM_DRAW);
 	glNamedBufferData(brad
-				   ,ball_buff.len*sizeof(*(ball_buff.rad))
-				   ,ball_buff.rad,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.rad))
+		   ,ball_buff.rad,GL_STREAM_DRAW);
 	glNamedBufferData(bflag
-				   ,ball_buff.len*sizeof(*(ball_buff.flag))
-				   ,ball_buff.flag,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.flag))
+		   ,ball_buff.flag,GL_STREAM_DRAW);
 	glNamedBufferData(bcolor
-				   ,ball_buff.len*sizeof(*(ball_buff.color))
-				   ,ball_buff.color,GL_STREAM_DRAW);
+		   ,ball_buff.len*sizeof(*(ball_buff.color))
+		   ,ball_buff.color,GL_STREAM_DRAW);
 
 	// dt=glfwGetTime()-t;t=glfwGetTime();
 	// glUniform2f(u_tdt,t,dt);
