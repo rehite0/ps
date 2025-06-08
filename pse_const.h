@@ -2,14 +2,14 @@
 #define t_tick 1.0/60.0
 #define tred 15
 #define MAX_SIZE ((int)1E10)
-enum bflags{
-	DEFAULT		=0b00000000 ,
-	NO_COLLISION	=0b00000001 ,
-	NO_FORCE	=0b00000010 ,
-	NO_CONSTRAIN	=0b00000100 ,
-	NO_MOVE		=0b00001000 ,
-	NO_DISPLAY	=0b00010000 ,
-};
+
+#define	DEFAULT		(0l)
+#define	NO_COLLISION	(1)
+#define	NO_FORCE	(1<<1)
+#define	NO_CONSTRAIN	(1<<2)
+#define	NO_MOVE		(1<<3)
+#define	NO_DISPLAY	(1<<4)
+
 struct ball_bufft{
 		float* posx;
 		float* posy;
@@ -22,3 +22,6 @@ struct ball_bufft{
 		unsigned int size;
 	};
 typedef unsigned int BALL;
+extern struct ball_bufft ball_buff;
+extern BALL MOUSE_BALL;
+

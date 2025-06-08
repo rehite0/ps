@@ -1,6 +1,5 @@
 #pragma once
 
-extern struct ball_bufft ball_buff;
 extern void ball_buff_create(void);
 
 extern void ball_buff_del(void);

@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+
 #include "pse_const.h"
 #include "ball_api.h"
 
-struct ball_bufft ball_buff={0};
 void ball_buff_create(void){
 	struct ball_bufft* bb=&ball_buff;
 	assert(bb->posx==NULL);
@@ -17,12 +17,12 @@ void ball_buff_create(void){
 	assert(bb->len==0);
 	assert(bb->size==0);
 
-	bb->size=8;
+	bb->size	=8;
 	bb->posx	=(float*) malloc(bb->size*sizeof(float));
 	bb->posy	=(float*) malloc(bb->size*sizeof(float));
 	bb->pposx	=(float*) malloc(bb->size*sizeof(float));
 	bb->pposy	=(float*) malloc(bb->size*sizeof(float));
-	bb->rad	=(float*) malloc(bb->size*sizeof(float));
+	bb->rad		=(float*) malloc(bb->size*sizeof(float));
 	bb->flag	=(unsigned int*) malloc(bb->size*sizeof(unsigned int));
 	bb->color	=(float(*)[4]) malloc(bb->size*sizeof(float [4]));
 
@@ -44,13 +44,13 @@ void ball_buff_del(void){
 	free( bb->rad  );
 	free( bb->flag );
 	free( bb->color);
-	bb->size=0;
-	bb->len=0;
+	bb->size	=0;
+	bb->len		=0;
 	bb->posx	= NULL;
 	bb->posy	= NULL;
 	bb->pposx	= NULL;
 	bb->pposy	= NULL;
-	bb->rad	= NULL;
+	bb->rad		= NULL;
 	bb->flag	= NULL;
 	bb->color	= NULL;
 }
@@ -88,12 +88,12 @@ unsigned int ball_append(
 		assert(bb->size!=0);
 	}
 	unsigned int i=bb->len++;
-	bb->posx[i]		= posx;
-	bb->posy[i]		= posy;
+	bb->posx[i]	= posx;
+	bb->posy[i]	= posy;
 	bb->pposx[i]	= pposx;
 	bb->pposy[i]	= pposy;
-	bb->rad[i]		= rad;
-	bb->flag[i]		= flag;
+	bb->rad[i]	= rad;
+	bb->flag[i]	= flag;
 	bb->color[i][0]	= colorr;
 	bb->color[i][1]	= colorg;
 	bb->color[i][2]	= colorb;

@@ -4,13 +4,13 @@ layout(location=1) in float vposy;
 layout(location=2) in float vpposx;
 layout(location=3) in float vpposy;
 layout(location=4) in float vrad;
-layout(location=5) in uint vflags;
+layout(location=5) in uint vflag;
 layout(location=6) in vec4 vcolor;
 
 out flat float posx;
 out flat float posy;
 out flat float rad;
-out flat uint flags;
+out flat uint flag;
 out flat vec4 color;
 out vec2 uv;
 
@@ -26,16 +26,17 @@ void main(){
 	posx=vposx;
 	posy=vposy;
 	rad=vrad;
-	flags=vflags;
+	flag=vflag;
 	color=vcolor;
 	mat4 pos=mat4(
-		 vec4(vrad,0.,0.,vposx)
-		,vec4(0.,vrad,0.,vposy)
+		 vec4(vrad,0.,0.,0.)
+		,vec4(0.,vrad,0.,0.)
 		,vec4(0.,0.,vrad,0.)
-		,vec4(0.,0.,0.,1.)
+		,vec4(vposx,vposy,0.,1.)
 	);
 	int i=idx[gl_VertexID];
 	uv=vert[i].xy;
 	gl_Position=pos*vec4(vert[i],1.0);
+	color*=vec4(((vflag&16)==16)?0.0:1.);	//NO_DISPLAY
 }
 

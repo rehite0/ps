@@ -4,7 +4,6 @@
 #include <assert.h>
 
 #include "main_globals.h"
-#include "ball_api.h"
 #include "pse_const.h"
 #include "render.h"
 
@@ -48,7 +47,7 @@ void render_setup(void){
 	glVertexAttribPointer(4,1,GL_FLOAT,GL_FALSE,0,0);
 	_buffer_init(&bflag,sizeof(*(((struct ball_bufft*)0)->flag)));
 	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5,1,GL_UNSIGNED_INT,GL_FALSE,0,0);
+	glVertexAttribIPointer(5,1,GL_UNSIGNED_INT,0,0);
 	_buffer_init(&bcolor,sizeof(*(((struct ball_bufft*)0)->color)));
 	glEnableVertexAttribArray(6);
 	glVertexAttribPointer(6,4,GL_FLOAT,GL_FALSE,0,0);
