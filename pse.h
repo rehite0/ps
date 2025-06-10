@@ -1,6 +1,9 @@
 #pragma once
 
 extern unsigned long vtick;
+extern unsigned long rtick;
+extern unsigned long frameno;
+extern double real_time;
 
 extern void pse_setup(void);
 extern void pse_exit(void);

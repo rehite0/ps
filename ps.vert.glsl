@@ -37,6 +37,6 @@ void main(){
 	int i=idx[gl_VertexID];
 	uv=vert[i].xy;
 	gl_Position=pos*vec4(vert[i],1.0);
-	color*=vec4(((vflag&16)==16)?0.0:1.);	//NO_DISPLAY
+	color*=vec4(((vflag&1<<4)==1<<4)?0.0:1.);	//NO_DISPLAY
 }
 

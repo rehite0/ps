@@ -1,7 +1,7 @@
 #pragma once
-#define t_tick 1.0/60.0
+#define vtick_time 1.0f/60.0f
 #define tred 15
-#define MAX_SIZE ((int)1E10)
+#define MAX_SIZE ((int)1E6)
 
 #define	DEFAULT		(0l)
 #define	NO_COLLISION	(1)

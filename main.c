@@ -15,7 +15,6 @@
 static GLFWwindow* win_main=NULL;
 int resolution_x=900; 
 int resolution_y=900; 
-unsigned long rtick; 
 static int running=1;
 
 void setup_cbs(void);
@@ -32,6 +31,7 @@ main(){
 
 	while(running){
 		glfwGetFramebufferSize(win_main,&resolution_x,&resolution_y);
+		pse_update();
 		render_update();
 		glfwSwapBuffers(win_main);
 		glfwPollEvents();
