@@ -21,7 +21,7 @@ void pse_setup(void){
 	MOUSE_BALL=ball_append(0., 0.
 	     , 0., 0.
 	     , 0.5
-	     ,(DEFAULT|NO_DISPLAY|NO_COLLISION)
+	     ,(DEFAULT|NO_DISPLAY|NO_COLLISION|NO_CONSTRAIN)
 	     , 1.0, 1., 0., 1.);
 	generate_random(MAX_SIZE-100);
 }
