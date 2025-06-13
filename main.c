@@ -15,6 +15,8 @@
 static GLFWwindow* win_main=NULL;
 int resolution_x=900; 
 int resolution_y=900; 
+float mouse_x=0.f;
+float mouse_y=0.f;
 static int running=1;
 
 void setup_cbs(void);
@@ -54,8 +56,8 @@ void
 cursor_position_cb(GLFWwindow* winid, double xpos, double ypos){
 	(void)winid;
 	if(MOUSE_BALL!=(BALL)-1){
-		ball_buff.posx[MOUSE_BALL]=(float)((xpos/resolution_x)*2.0-1.0);
-		ball_buff.posy[MOUSE_BALL]=(float)((ypos/resolution_y)*-2.0+1.0);
+		mouse_x=(float)((xpos/resolution_x)*2.0-1.0);
+		mouse_y=(float)((ypos/resolution_y)*-2.0+1.0);
 	}
 }
 void
