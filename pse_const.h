@@ -24,4 +24,5 @@ struct ball_bufft{
 typedef unsigned int BALL;
 extern struct ball_bufft ball_buff;
 extern BALL MOUSE_BALL;
+#define MIN_RADIUS 0.01f
 

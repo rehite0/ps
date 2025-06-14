@@ -1,3 +1,5 @@
+#profiler
+*.data*
 # Prerequisites
 *.d
 

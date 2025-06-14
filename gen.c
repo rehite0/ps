@@ -32,7 +32,7 @@ void generate_stream(int stream_num
 		for (int i=0;i<stream_num;++i) ball_append(
 		    (float)i*dx+posx,(float)i*dy+posy,
 		    0.0,0.0,
-		    COMMON_RADIUS,
+		    MIN_RADIUS,
 		    DEFAULT,
 		    r,g,b,a
 		    );	

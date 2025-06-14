@@ -5,7 +5,7 @@
 static inline void get_aceration(BALL b,float acc[2]){
 	if ((ball_buff.flag[b]&NO_FORCE)==NO_FORCE) return;
 	const float gav=0.1f;
-	#if 0
+	#if 1
 	//gravity
 	acc[1]-=gav;
 	#else 
@@ -26,17 +26,19 @@ void apply_motion(BALL start,BALL stop,const float dt){
 		get_aceration(i, acc);
 		ball_buff.pposx[i]=2.0f*ball_buff.posx[i]-ball_buff.pposx[i]+acc[0]*dt*dt;
 		ball_buff.pposy[i]=2.0f*ball_buff.posy[i]-ball_buff.pposy[i]+acc[1]*dt*dt;
-		float* tmp=0;
-		tmp=ball_buff.posx;
-		ball_buff.posx=ball_buff.pposx;
-		ball_buff.pposx=tmp;
-		tmp=ball_buff.posy;
-		ball_buff.posy=ball_buff.pposy;
-		ball_buff.pposy=tmp;
 	}
+	float* tmp=0;
+	tmp=ball_buff.posx;
+	ball_buff.posx=ball_buff.pposx;
+	ball_buff.pposx=tmp;
+	tmp=ball_buff.posy;
+	ball_buff.posy=ball_buff.pposy;
+	ball_buff.pposy=tmp;
+	
 }
 void apply_constrains(BALL start,BALL stop,const float dt){
 	(void)dt;
+	
 	for (BALL i=start;i<stop;++i){
 		if ((ball_buff.flag[i]&NO_CONSTRAIN)==NO_CONSTRAIN) continue;
 		float wall=1.0f-ball_buff.rad[i];
@@ -63,4 +65,15 @@ void apply_constrains(BALL start,BALL stop,const float dt){
 			ball_buff.pposy[i]=ball_buff.posy[i]*(1.0f-coll_coff)+ball_buff.pposy[i]*coll_coff;
 		}
 	}
+	/*for (BALL i=start;i<stop;++i){
+		if ((ball_buff.flag[i]&NO_CONSTRAIN)==NO_CONSTRAIN) continue;
+		float wall=(1.0f-ball_buff.rad[i])*-1.0f;
+		const float coll_coff=0.8f;
+		int predicate=(ball_buff.posy[i]<=wall);// branchless method to speed up
+		float true_=(float)predicate,false_=(float)!predicate;
+			ball_buff.posy[i]=(2.0f*wall-ball_buff.posy[i])*true_+ball_buff.posy[i]*false_;
+			ball_buff.pposy[i]=(2.0f*wall-ball_buff.pposy[i])*true_+ball_buff.pposy[i]*false_;
+			ball_buff.pposy[i]=(ball_buff.posy[i]*(1.0f-coll_coff)+ball_buff.pposy[i]*coll_coff)*true_+ball_buff.pposy[i]*false_;
+		
+	}*/
 }
