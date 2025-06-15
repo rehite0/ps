@@ -1,15 +1,16 @@
 CC=gcc
-CFLAGS= -Ofast  -ggdb -march='native' #-ffinite-math-only -freciprocal-math
+CFLAGS= -ggdb #-Ofast -march='native' #-ffinite-math-only -freciprocal-math
 CFLAGS+= -Wall -Wextra -Wpedantic -Wconversion -Werror -Winline -Wshadow -Wfloat-equal
 CFLAGS+= -Wunreachable-code -Winit-self -Wuninitialized
 #CPPFLAGS=
 #LDFLAGS=
-LDLIBS= `pkg-config --libs --cflags glfw3 glew`
+LDLIBS= `pkg-config --libs --cflags glfw3 glew` -lm -lmvec
+OBJ=main.o render.o ball_api.o pse.o gen.o par.o motion.o collision.o
 
 all: a.out
 	@echo 'compilation finished'
-a.out:main.o render.o ball_api.o pse.o gen.o par.o motion.o
-	${CC} ${CFLAGS} ${LDLIBS} main.o render.o ball_api.o pse.o gen.o par.o motion.o -o a.out
+a.out:${OBJ}
+	${CC} ${CFLAGS} ${LDLIBS} ${OBJ} -o a.out
 main.o:main.c main_globals.h render.h pse.h pse_const.h
 	${CC} ${CFLAGS} ${LDLIBS} -c main.c -o main.o
 render.o:render.c render.h main_globals.h pse_const.h
@@ -24,6 +25,8 @@ par.o:par.c par.h pse.h pse_const.h motion.h
 	${CC} ${CFLAGS} -c par.c -o par.o
 motion.o:motion.c motion.h pse_const.h
 	${CC} ${CFLAGS} -c motion.c -o motion.o
+collision.o:collision.c collision.h pse_const.h
+	${CC} ${CFLAGS} -c collision.c -o collision.o
 clean:
 	rm -f *.out *.o
 .PHONY: all clean

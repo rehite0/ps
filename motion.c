@@ -4,7 +4,7 @@
 
 static inline void get_aceration(BALL b,float acc[2]){
 	if ((ball_buff.flag[b]&NO_FORCE)==NO_FORCE) return;
-	const float gav=0.1f;
+	const float gav=0.9f;
 	#if 1
 	//gravity
 	acc[1]-=gav;

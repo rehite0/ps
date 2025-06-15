@@ -22,11 +22,11 @@ void pse_setup(void){
 	ball_buff_create();
 	MOUSE_BALL=ball_append(mouse_x,mouse_y
 	     ,mouse_x,mouse_y
-	     , 0.5
+	     , 0.15f
 	     ,(DEFAULT|NO_DISPLAY|NO_COLLISION|NO_CONSTRAIN)
 	     , 1.0, 1., 0., 1.);
-	generate_random(MAX_SIZE-101,MIN_RADIUS/10.0f);
-	//generate_random(1000,MIN_RADIUS);
+	//generate_random(MAX_SIZE-101,MIN_RADIUS/10.0f);
+	generate_random(10000,MIN_RADIUS);
 	par_setup();
 }
 
