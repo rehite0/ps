@@ -1,11 +1,12 @@
+#include <assert.h>
 #include <math.h>
 #include "motion.h"
 #include "pse_const.h"
 
 static inline void get_aceration(BALL b,float acc[2]){
 	if ((ball_buff.flag[b]&NO_FORCE)==NO_FORCE) return;
-	const float gav=0.9f;
-	#if 1
+	const float gav=0.45f;
+	#if 0
 	//gravity
 	acc[1]-=gav;
 	#else 
@@ -14,6 +15,8 @@ static inline void get_aceration(BALL b,float acc[2]){
 		0.f-ball_buff.posx[b],
 		0.f-ball_buff.posy[b]};
 	float norm_factor=1.0f/sqrtf(v[0]*v[0]+v[1]*v[1]);
+	assert(!isnan(norm_factor));
+	assert(!isinf(norm_factor));
 	acc[0]+=gav*v[0]*norm_factor;
 	acc[1]+=gav*v[1]*norm_factor;
 	#endif

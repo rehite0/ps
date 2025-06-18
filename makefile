@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -ggdb #-Ofast -march='native' #-ffinite-math-only -freciprocal-math
+CFLAGS= -ggdb -Ofast -march='native' #-ffinite-math-only -freciprocal-math
 CFLAGS+= -Wall -Wextra -Wpedantic -Wconversion -Werror -Winline -Wshadow -Wfloat-equal
 CFLAGS+= -Wunreachable-code -Winit-self -Wuninitialized
 #CPPFLAGS=
