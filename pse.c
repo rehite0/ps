@@ -26,7 +26,7 @@ void pse_setup(void){
 	     ,(DEFAULT|NO_DISPLAY|NO_COLLISION|NO_CONSTRAIN|NO_FORCE)
 	     , 1.0, 1., 0., 1.);
 	//generate_random(MAX_SIZE-101,MIN_RADIUS/10.0f);
-	generate_random(3000,MIN_RADIUS);
+	generate_random(7000,MIN_RADIUS);
 	par_setup();
 }
 
@@ -52,9 +52,13 @@ void pse_update(void){
 			 ,1.f/frametime,frametime,vtick,rtick,(float)vtick*vtick_time,real_time,ball_buff.len);
 	}
 	real_time=glfwGetTime();
-	ball_buff.posx[MOUSE_BALL]=mouse_x;
-	ball_buff.posy[MOUSE_BALL]=mouse_y;
-	par_update();
+	int s=24;
+	assert(s>0&&"substep number is invalid");
+	for(int i=0;i<s;i++){
+		ball_buff.posx[MOUSE_BALL]=mouse_x;
+		ball_buff.posy[MOUSE_BALL]=mouse_y;
+		par_update(vtick_time/(float)s);
+	}
 	//usleep(1000000/95);
 }
 

@@ -15,8 +15,8 @@
 static GLFWwindow* win_main=NULL;
 int resolution_x=900; 
 int resolution_y=900; 
-float mouse_x=0.f;
-float mouse_y=0.f;
+float mouse_x=1.f;
+float mouse_y=1.f;
 static int running=1;
 
 void setup_cbs(void);
@@ -59,6 +59,7 @@ cursor_position_cb(GLFWwindow* winid, double xpos, double ypos){
 		mouse_x=(float)((xpos/resolution_x)*2.0-1.0);
 		mouse_y=(float)((ypos/resolution_y)*-2.0+1.0);
 	}
+	//dprintf(1,"%lf;%lf\n",mouse_x,mouse_y);
 }
 void
 mouse_click_cb(GLFWwindow* winid, int button, int action, int mods){
