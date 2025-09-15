@@ -1,191 +1,92 @@
-#include <bits/pthreadtypes.h>
-#include <pthread.h>
-#include <stddef.h>
+
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <threads.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "collision.h"
 #include "pse_const.h"
 
-#define highlight_coll
-#define THREAD_NUM 5
-#define asd 1
+#define NUM_THREADS 16
 
-static struct{
-	BALL** mesh;
-	int* len_l;
-	int* size_l;
-	pthread_spinlock_t* lock_l;
-}grid={NULL,NULL,NULL,NULL};
-static struct{
-	int *idx_list;
-	int idxl_len;
-	int idxl_size;
-}ovlap[THREAD_NUM]={0};
-#define DIVISIONS 70
-#define NUM_CELLS (DIVISIONS*DIVISIONS)
-#define COLL_COFFICIENT 0.8f
+static BALL **mesh=NULL;
+static pthread_spinlock_t *mesh_lock=NULL;
+static int *len_list=NULL;
+static int *size_list=NULL;
+
+static pthread_t thr[NUM_THREADS];
+static pthread_barrier_t start_creg,start_cdec,stop_cdec;
 
 static inline int resolve_logic(BALL a,BALL b);
-static inline int pos_index(float x);
-static inline int idx_of(int x,int y);
-static inline void get_idxs(BALL b);
-static inline int cst_collision_detect(BALL start,BALL stop);
-static inline void cst_collision_register(BALL start,BALL stop);
 
-void collision_reset(void)
+static void * rut(void* ign);
+static void rut_cleanup(void* a);
+
+static void * rut(void* ign)
 {
-	for(int i=0;i<NUM_CELLS+1;++i)
-		grid.len_l[i]=0;
+	(void)ign;
+	pthread_cleanup_push(rut_cleanup,NULL);
+	thread_local static int a;
+	while(1){
+		pthread_barrier_wait(&start_creg);
+		pthread_barrier_wait(&start_cdec);
+		pthread_barrier_wait(&stop_cdec);
+	}
+	pthread_cleanup_pop(1);
+	return NULL;
 }
+
+static void rut_cleanup(void* a)
+{
+	(void)a;
+}
+
 void collision_setup(void)
 {
-	grid.mesh=(BALL**)malloc((NUM_CELLS+1)*sizeof(BALL*));
-	grid.len_l=(int*)malloc((NUM_CELLS+1)*sizeof(int));
-	grid.size_l=(int*)malloc((NUM_CELLS+1)*sizeof(int));
-	grid.lock_l=(pthread_spinlock_t*)malloc((NUM_CELLS+1)*sizeof(pthread_spinlock_t));
-	for(int i=0;i<THREAD_NUM;++i){
-		ovlap[i].idxl_len=0;
-		ovlap[i].idxl_size=8;
-		ovlap[i].idx_list=(int*)malloc((size_t)ovlap[i].idxl_size*sizeof(int));
-	}
+	mesh=(BALL**)malloc((NUM_CELLS+1)*sizeof(BALL*));
+	mesh_lock=(pthread_spinlock_t*)malloc((NUM_CELLS+1)*sizeof(pthread_spinlock_t));
+	len_list=(int*)malloc((NUM_CELLS+1)*sizeof(int));
+	size_list=(int*)malloc((NUM_CELLS+1)*sizeof(int));
 	for(int i=0;i<NUM_CELLS+1;++i){
-		grid.len_l[i]=0;
-		grid.size_l[i]=8;
-		grid.mesh[i]=(BALL*)malloc((size_t)grid.size_l[i]*sizeof(BALL));
-		pthread_spin_init(&grid.lock_l[i],PTHREAD_PROCESS_PRIVATE);
+		len_list[i]=0;
+		size_list[i]=8;
+		pthread_spin_init(&mesh_lock[i],PTHREAD_PROCESS_PRIVATE);
+		mesh[i]=(BALL*)malloc((size_t)size_list[i]*sizeof(BALL));
 	}
+	for(int i=0;i<NUM_THREADS;++i){
+		pthread_create(&thr[i],0,rut,0);
+	}
+	pthread_barrier_init(&start_creg,NULL,NUM_THREADS+1);
+	pthread_barrier_init(&start_cdec,NULL,NUM_THREADS+1);
+	pthread_barrier_init(&stop_cdec,NULL,NUM_THREADS+1);
 }
 void collision_del(void)
 {
+	for(int i=0;i<NUM_THREADS;++i){
+		pthread_cancel(thr[i]);
+		thr[i]=0;
+	}
 	for(int i=0;i<NUM_CELLS+1;++i){
-		free(grid.mesh[i]);
-		pthread_spin_destroy(&grid.lock_l[i]);
+		free(mesh[i]);
+		pthread_spin_destroy(&mesh_lock[i]);
 	}
-	for(int i=0;i<THREAD_NUM;++i){
-		free(ovlap[i].idx_list);
-	}
-	free(grid.mesh);
-	free(grid.len_l);
-	free(grid.size_l);
-	free((void*)grid.lock_l);
-
+	free(mesh);
+	free((void*)mesh_lock);
+	free(len_list);
+	free(size_list);
+	pthread_barrier_destroy(&start_creg);
+	pthread_barrier_destroy(&start_cdec);
+	pthread_barrier_destroy(&stop_cdec);
 }
-void collision_register(void)
+void collision_reset(void)
 {
-	cst_collision_register(0,ball_buff.len);
+	for(int i=0;i<NUM_CELLS+1;++i)
+		len_list[i]=0;
 }
-int collision_detect(void)
-{
-	BALL start=0,stop=NUM_CELLS;
-	int coll_count=0;
-	coll_count+=cst_collision_detect(start,stop);
-	return coll_count;
-}
-struct{pthread_t tid;
-}thread_data[THREAD_NUM];
-void* cd_run(void* arg){cst_collision_detect(0,0)}
-void* cd_spawn(void* arg){
-	for(int i=0;i<THREAD_NUM;++i)
-		pthread_create(thread_data[i]tid,NULL
-		 ,cd_run,(void*)&thread_data[i])
-}
-/*
-int collision_detect(void)
-{
-	BALL start=0,stop=ball_buff.len;
-	int coll_count=0;
-	for(BALL b=start;b<stop;++b){
-		int idx;
-		get_idxs(b);
-		for(int i=0;i<ball_buff.len;++i){
-			idx=ovlap[asd].idx_list[i];
-			assert(idx>=0&&idx<=NUM_CELLS);
-			for(int j=0;j<grid.len_l[idx];++j)
-				coll_count+=resolve_logic(b,grid.mesh[idx][j]);
+void collision_register(BALL start,BALL stop);
+int collision_detect(BALL start,BALL stop);
 
-		}
-		idx=NUM_CELLS;
-		for(int j=0;j<grid.len_l[idx];++j)
-			coll_count+=resolve_logic(b,grid.mesh[idx][j]);
-	}
-	return coll_count;
-}*/
-
-static inline int cst_collision_detect(BALL start,BALL stop){
-	//int start=0,stop=NUM_CELLS;
-	int coll_count=0;
-	for(BALL idx=start;idx<stop;++idx){
-		for(int i=0;i<grid.len_l[idx];++i)
-			for(int j=i;j<grid.len_l[idx];++j)
-				coll_count+=resolve_logic(grid.mesh[idx][i],grid.mesh[idx][j]);
-
-	}
-	return coll_count;
-}
-
-static inline void cst_collision_register(BALL start,BALL stop){
-	int idx;
-	for(BALL b=start;b<stop;++b){
-		#ifdef highlight_coll
-			ball_buff.color[b][2]=0.0f;
-		#endif
-		get_idxs(b);
-		for(int i=0;i<ovlap[asd].idxl_len;++i){
-			idx=ovlap[asd].idx_list[i];
-			pthread_spin_lock(&grid.lock_l[idx]);
-
-			if(grid.len_l[idx]>=grid.size_l[idx]){
-				grid.size_l[idx]*=2;
-				grid.mesh[idx]=(BALL*)realloc(grid.mesh[idx]
-				    ,(size_t)grid.size_l[idx]*sizeof(BALL));
-			}
-			grid.mesh[idx][grid.len_l[idx]]=b;
-			grid.len_l[idx]++;
-
-			pthread_spin_unlock(&grid.lock_l[idx]);
-		}
-	}
-}
-static inline int pos_index(float x)
-{
-	assert(!isnan(x));
-	assert(!isinf(x));
-	if(x>1.0f||x<-1.0f){
-		return -1;
-	}
-	return (int)((x+1.0f)*(float)(DIVISIONS-1)/2.0f);
-}
-static inline int idx_of(int x,int y)
-{
-	return y*DIVISIONS+x;
-}
-static inline void get_idxs(BALL b)
-{
-	assert(!isnan(ball_buff.posx[b]));
-	assert(!isnan(ball_buff.posy[b]));
-	assert(!isinf(ball_buff.posx[b]));
-	assert(!isinf(ball_buff.posy[b]));
-	ovlap[asd].idxl_len=0;
-	int y1,y2,x1,x2;
-	y1=pos_index(ball_buff.posy[b]-ball_buff.rad[b]);
-	y2=pos_index(ball_buff.posy[b]+ball_buff.rad[b]);
-	x1=pos_index(ball_buff.posx[b]-ball_buff.rad[b]);
-	x2=pos_index(ball_buff.posx[b]+ball_buff.rad[b]);
-	if(y1==-1||y2==-1||x1==-1||x2==-1){
-		ovlap[asd].idx_list[ovlap[asd].idxl_len++]=NUM_CELLS;
-		return;
-	}
-	for(int y=y1;y<=y2;++y){
-		for(int x=x1;x<=x2;++x){
-			if(ovlap[asd].idxl_len==ovlap[asd].idxl_size)
-				ovlap[asd].idx_list=realloc(ovlap[asd].idx_list
-					,(size_t)(ovlap[asd].idxl_size*=2)*sizeof(int));
-			ovlap[asd].idx_list[ovlap[asd].idxl_len++]=idx_of(x,y);
-		}
-	}
-}
 static inline int resolve_logic(BALL a,BALL b)
 {
 	if(a==b) return 0;
@@ -195,7 +96,7 @@ static inline int resolve_logic(BALL a,BALL b)
 		,ball_buff.posy[a]-ball_buff.posy[b]};
 	float dist=axis[0]*axis[0]+axis[1]*axis[1];
 	float rad_sum=ball_buff.rad[a]+ball_buff.rad[b];
-	if(dist>=rad_sum*rad_sum) return 0;
+	if(dist>rad_sum*rad_sum) return 0;
 	float delta,norm_factor;
 	dist=sqrtf(dist);
 	delta=(rad_sum-dist);
@@ -247,10 +148,6 @@ static inline int resolve_logic(BALL a,BALL b)
 		ball_buff.pposx[b]=ball_buff.posx[b]-vb_[0];
 		ball_buff.pposy[b]=ball_buff.posy[b]-vb_[1];
 	}
-	#ifdef highlight_coll
-		ball_buff.color[a][2]=0.9f;
-		ball_buff.color[b][2]=0.9f;
-	#endif
-	(void)(va_[0]+vb_[0]);
 	return 1;
 }
+

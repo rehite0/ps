@@ -9,9 +9,6 @@
 static BALL **mesh=NULL;
 static int *len_list=NULL;
 static int *size_list=NULL;
-#define DIVISIONS 50
-#define NUM_CELLS (DIVISIONS*DIVISIONS)
-#define COLL_COFFICIENT 0.8f
 
 static inline int pos_index(float x)
 {
