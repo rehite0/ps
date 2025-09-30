@@ -9,7 +9,8 @@ static inline void get_aceration(BALL b,float acc[2]){
 	#if 0
 	//gravity
 	acc[1]-=gav;
-	#else 
+	#endif
+	#if 1
 	//center gravity
 	float v[2]={
 		0.f-ball_buff.posx[b],
@@ -19,6 +20,17 @@ static inline void get_aceration(BALL b,float acc[2]){
 	assert(!isinf(norm_factor));
 	acc[0]+=gav*v[0]*norm_factor;
 	acc[1]+=gav*v[1]*norm_factor;
+	#endif
+	#if 0
+	//tangential flow force
+	float v[2]={
+		0.f-ball_buff.posx[b],
+		0.f-ball_buff.posy[b]};
+	float norm_factor=1.0f/sqrtf(v[0]*v[0]+v[1]*v[1]);
+	assert(!isnan(norm_factor));
+	assert(!isinf(norm_factor));
+	acc[0]+=(gav*.4f*-1.0f*v[1]*norm_factor)+gav*v[0]*norm_factor;
+	acc[1]+=(gav*.4f*v[0]*norm_factor)+gav*v[1]*norm_factor;
 	#endif
 	return;
 }
