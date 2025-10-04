@@ -21,8 +21,12 @@ struct ball_bufft{
 		unsigned int len;
 		unsigned int size;
 	};
+struct src_bufft{
+	unsigned int* coll_no;
+};
 typedef unsigned int BALL;
 extern struct ball_bufft ball_buff;
+extern struct src_bufft src_buff;
 extern BALL MOUSE_BALL;
-#define MIN_RADIUS 0.006f
-
+#define MIN_RADIUS 0.004f
+#define log_coll_no 1

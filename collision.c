@@ -96,6 +96,10 @@ static inline int resolve_logic(BALL a,BALL b)
 		ball_buff.pposx[b]=ball_buff.posx[b]-vb_[0];
 		ball_buff.pposy[b]=ball_buff.posy[b]-vb_[1];
 	}
+	#if log_coll_no
+	src_buff.coll_no[a]++;
+	src_buff.coll_no[b]++;
+	#endif
 	return 1;
 }
 void collision_reset(void)
@@ -128,6 +132,9 @@ void collision_register(BALL start,BALL stop)
 	xo=xm=yo=ym=0;
 
 	for(BALL b=start;b<stop;++b){
+		#if(log_coll_no)
+		src_buff.coll_no[b]=0;
+		#endif
 		xo=pos_index(ball_buff.posx[b]-ball_buff.rad[b]);
 		xm=pos_index(ball_buff.posx[b]+ball_buff.rad[b]);
 		yo=pos_index(ball_buff.posy[b]-ball_buff.rad[b]);

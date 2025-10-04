@@ -16,6 +16,7 @@ void ball_buff_create(void){
 	assert(bb->color==NULL);
 	assert(bb->len==0);
 	assert(bb->size==0);
+	assert(src_buff.coll_no==NULL);
 
 	bb->size	=8;
 	bb->posx	=(float*) malloc(bb->size*sizeof(float));
@@ -25,6 +26,7 @@ void ball_buff_create(void){
 	bb->rad		=(float*) malloc(bb->size*sizeof(float));
 	bb->flag	=(unsigned int*) malloc(bb->size*sizeof(unsigned int));
 	bb->color	=(float(*)[4]) malloc(bb->size*sizeof(float [4]));
+	src_buff.coll_no=(unsigned int*) malloc(bb->size*sizeof(unsigned int));
 
 	assert(bb->posx!=NULL);
 	assert(bb->posy!=NULL);
@@ -34,6 +36,7 @@ void ball_buff_create(void){
 	assert(bb->flag!=NULL);
 	assert(bb->color!=NULL);
 	assert(bb->size!=0);
+	assert(src_buff.coll_no!=NULL);
 }
 void ball_buff_del(void){
 	struct ball_bufft* bb=&ball_buff;
@@ -44,6 +47,7 @@ void ball_buff_del(void){
 	free( bb->rad  );
 	free( bb->flag );
 	free( bb->color);
+	free( src_buff.coll_no);
 	bb->size	=0;
 	bb->len		=0;
 	bb->posx	= NULL;
@@ -53,6 +57,7 @@ void ball_buff_del(void){
 	bb->rad		= NULL;
 	bb->flag	= NULL;
 	bb->color	= NULL;
+	src_buff.coll_no= NULL;
 }
 unsigned int ball_append(
 	float posx,
@@ -78,6 +83,8 @@ unsigned int ball_append(
 		bb->flag	=(unsigned int*) realloc(bb->flag,bb->size*sizeof(unsigned int));
 		bb->color	=(float(*)[4]) realloc(bb->color,bb->size*sizeof(float [4]));
 
+		src_buff.coll_no=(unsigned int*) realloc(src_buff.coll_no,bb->size*sizeof(unsigned int));
+
 		assert(bb->posx!=NULL);
 		assert(bb->posy!=NULL);
 		assert(bb->pposx!=NULL);
@@ -86,6 +93,7 @@ unsigned int ball_append(
 		assert(bb->flag!=NULL);
 		assert(bb->color!=NULL);
 		assert(bb->size!=0);
+		assert(src_buff.coll_no!=NULL);
 	}
 	unsigned int i=bb->len++;
 	bb->posx[i]	= posx;
@@ -98,6 +106,7 @@ unsigned int ball_append(
 	bb->color[i][1]	= colorg;
 	bb->color[i][2]	= colorb;
 	bb->color[i][3]	= colora;
+	src_buff.coll_no[i]= 0;
 
 	return bb->len-1;
 }

@@ -3,7 +3,7 @@
 
 #define DIVISIONS 128
 #define NUM_CELLS (DIVISIONS*DIVISIONS)
-#define COLL_COFFICIENT 0.999f
+#define COLL_COFFICIENT 0.99f
 
 void collision_setup(void);
 void collision_del(void);

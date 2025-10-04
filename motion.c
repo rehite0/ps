@@ -5,12 +5,15 @@
 
 static inline void get_aceration(BALL b,float acc[2]){
 	if ((ball_buff.flag[b]&NO_FORCE)==NO_FORCE) return;
+	#if 1	//disable gravity if colliding stabalise colasping center
+	if (src_buff.coll_no[b]) return;
+	#endif
 	const float gav=0.45f;
-	#if 1
+	#if 0
 	//gravity
 	acc[1]-=gav;
 	#endif
-	#if 0
+	#if 1
 	//center gravity
 	float v[2]={
 		0.f-ball_buff.posx[b],
