@@ -9,9 +9,6 @@
 static BALL **mesh=NULL;
 static int *len_list=NULL;
 static int *size_list=NULL;
-#define DIVISIONS 50
-#define NUM_CELLS (DIVISIONS*DIVISIONS)
-#define COLL_COFFICIENT 0.8f
 
 static inline int pos_index(float x)
 {
@@ -20,6 +17,11 @@ static inline int pos_index(float x)
 	return (int)((x+1.0f)*(float)(DIVISIONS-1)/2.0f);
 }
 static inline int idx_of(int x,int y){
+	if(x>=DIVISIONS
+	||x<0
+	||y>=DIVISIONS
+	||y<0)
+		return NUM_CELLS;
 	return y*DIVISIONS+x;
 }
 static inline int get_index(BALL b)
@@ -28,11 +30,6 @@ static inline int get_index(BALL b)
 	assert(!isnan(ball_buff.posy[b]));
 	assert(!isinf(ball_buff.posx[b]));
 	assert(!isinf(ball_buff.posy[b]));
-	if(ball_buff.posx[b]>1.0f
-	||ball_buff.posx[b]<-1.0f
-	||ball_buff.posy[b]>1.0f
-	||ball_buff.posy[b]<-1.0f)
-		return NUM_CELLS;
 	return idx_of(
 		pos_index(ball_buff.posx[b])
 	       ,pos_index(ball_buff.posy[b])
@@ -99,6 +96,10 @@ static inline int resolve_logic(BALL a,BALL b)
 		ball_buff.pposx[b]=ball_buff.posx[b]-vb_[0];
 		ball_buff.pposy[b]=ball_buff.posy[b]-vb_[1];
 	}
+	#if log_coll_no
+	src_buff.coll_no[a]++;
+	src_buff.coll_no[b]++;
+	#endif
 	return 1;
 }
 void collision_reset(void)
@@ -126,16 +127,28 @@ void collision_del(void)
 	free(size_list);
 }
 void collision_register(BALL start,BALL stop)
-{
-	int idx;
+{//fix box issue
+	int xo,xm,yo,ym;
+	xo=xm=yo=ym=0;
+
 	for(BALL b=start;b<stop;++b){
-		idx=get_index(b);
-		if(len_list[idx]>=size_list[idx]){
-			size_list[idx]*=2;
-			mesh[idx]=(BALL*)realloc(mesh[idx],(size_t)size_list[idx]*sizeof(BALL));
-		}
-		mesh[idx][len_list[idx]]=b;
-		len_list[idx]++;
+		#if(log_coll_no)
+		src_buff.coll_no[b]=0;
+		#endif
+		xo=pos_index(ball_buff.posx[b]-ball_buff.rad[b]);
+		xm=pos_index(ball_buff.posx[b]+ball_buff.rad[b]);
+		yo=pos_index(ball_buff.posy[b]-ball_buff.rad[b]);
+		ym=pos_index(ball_buff.posy[b]+ball_buff.rad[b]);
+		for(int i=xo;i<=xm;++i)
+			for(int j=yo;j<=ym;++j){
+				int idx=idx_of(i,j);
+				if(len_list[idx]>=size_list[idx]){
+					size_list[idx]*=2;
+					mesh[idx]=(BALL*)realloc(mesh[idx],(size_t)size_list[idx]*sizeof(BALL));
+				}
+				mesh[idx][len_list[idx]]=b;
+				len_list[idx]++;
+			}
 	}
 }
 int collision_detect(BALL start,BALL stop)
@@ -144,30 +157,7 @@ int collision_detect(BALL start,BALL stop)
 	for(BALL i=start;i<stop;++i){
 		int idx_cen=get_index(i);
 		int idx=idx_cen-DIVISIONS-1;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen-DIVISIONS;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen-DIVISIONS+1;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen-1;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
 		idx=idx_cen;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen+1;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen+DIVISIONS-1;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen+DIVISIONS;
-		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
-			coll_count+=resolve_logic(i,mesh[idx][j]);
-		idx=idx_cen+DIVISIONS+1;
 		for(int j=0;idx>=0&&idx<NUM_CELLS&&j<len_list[idx];++j)
 			coll_count+=resolve_logic(i,mesh[idx][j]);
 		idx=NUM_CELLS;

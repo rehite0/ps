@@ -1,3 +1,4 @@
+*.ref
 #profiler
 *.data*
 # Prerequisites
