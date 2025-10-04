@@ -16,7 +16,7 @@ static int *len_list=NULL;
 static int *size_list=NULL;
 
 static pthread_t thr[NUM_THREADS];
-static pthread_barrier_t start_creg,start_cdec,stop_cdec;
+static pthread_barrier_t START_COLL_REGISTER,START_COLL_DETECT,STOP_COLL_DETECT;
 
 static inline int resolve_logic(BALL a,BALL b);
 
@@ -29,9 +29,9 @@ static void * rut(void* ign)
 	pthread_cleanup_push(rut_cleanup,NULL);
 	thread_local static int a;
 	while(1){
-		pthread_barrier_wait(&start_creg);
-		pthread_barrier_wait(&start_cdec);
-		pthread_barrier_wait(&stop_cdec);
+		pthread_barrier_wait(&START_COLL_REGISTER);
+		pthread_barrier_wait(&START_COLL_DETECT);
+		pthread_barrier_wait(&STOP_COLL_DETECT);
 	}
 	pthread_cleanup_pop(1);
 	return NULL;
@@ -57,9 +57,9 @@ void collision_setup(void)
 	for(int i=0;i<NUM_THREADS;++i){
 		pthread_create(&thr[i],0,rut,0);
 	}
-	pthread_barrier_init(&start_creg,NULL,NUM_THREADS+1);
-	pthread_barrier_init(&start_cdec,NULL,NUM_THREADS+1);
-	pthread_barrier_init(&stop_cdec,NULL,NUM_THREADS+1);
+	pthread_barrier_init(&START_COLL_REGISTER,NULL,NUM_THREADS+1);
+	pthread_barrier_init(&START_COLL_DETECT,NULL,NUM_THREADS+1);
+	pthread_barrier_init(&STOP_COLL_DETECT,NULL,NUM_THREADS+1);
 }
 void collision_del(void)
 {
@@ -75,9 +75,9 @@ void collision_del(void)
 	free((void*)mesh_lock);
 	free(len_list);
 	free(size_list);
-	pthread_barrier_destroy(&start_creg);
-	pthread_barrier_destroy(&start_cdec);
-	pthread_barrier_destroy(&stop_cdec);
+	pthread_barrier_destroy(&START_COLL_REGISTER);
+	pthread_barrier_destroy(&START_COLL_DETECT);
+	pthread_barrier_destroy(&STOP_COLL_DETECT);
 }
 void collision_reset(void)
 {
