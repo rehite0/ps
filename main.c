@@ -23,6 +23,7 @@ void setup_cbs(void);
 
 int
 main(){
+	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 	assert((glfwInit() == GLFW_TRUE)&&"glfw intialise failed");
 	win_main = glfwCreateWindow(resolution_x , resolution_y , "ps", NULL , NULL);
 	assert(win_main&&"window creation failed");

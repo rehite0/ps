@@ -27,7 +27,7 @@ void pse_setup(void){
 	     ,(DEFAULT|NO_DISPLAY|NO_COLLISION|NO_CONSTRAIN|NO_FORCE)
 	     , 1.0, 1., 0., 1.);
 	//generate_random(MAX_SIZE-101,MIN_RADIUS/10.0f);
-	generate_random(10000,MIN_RADIUS);
+	generate_random(5000,MIN_RADIUS);
 	par_setup();
 }
 
@@ -49,9 +49,18 @@ void pse_update(void){
 			 "vtime:%f\n"
 			 "rtime:%f\n"
 			 "ball_num:%d\n"
+	  		 "no of coll:%d\n"
 			 "\n\n"
-			 ,1.f/frametime,frametime,vtick,rtick,(float)vtick*vtick_time,real_time,ball_buff.len);
+			 ,1.f/frametime
+			  ,frametime
+			  ,vtick
+			  ,rtick
+			  ,(float)vtick*vtick_time
+			  ,real_time
+			  ,ball_buff.len
+			  ,num_coll);
 	}
+	num_coll=0;
 	real_time=glfwGetTime();
 	int s=16;
 	assert(s>0&&"substep number is invalid");
@@ -69,6 +78,5 @@ void pse_update(void){
 		}
 		#endif
 	}
-	//usleep(1000000/95);
 }
 

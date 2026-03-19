@@ -1,5 +1,5 @@
 #pragma once
-#define vtick_time 1.0f/60.0f
+#define vtick_time ((1.0f/60.0f))
 #define tred 15
 #define MAX_SIZE ((int)1E6)
 
@@ -28,5 +28,6 @@ typedef unsigned int BALL;
 extern struct ball_bufft ball_buff;
 extern struct src_bufft src_buff;
 extern BALL MOUSE_BALL;
-#define MIN_RADIUS 0.004f
+extern int num_coll;
+#define MIN_RADIUS 0.0085f
 #define log_coll_no 1

@@ -1,9 +1,10 @@
 #pragma once
 #include "pse_const.h"
 
-#define DIVISIONS 128
+#define DIVISIONS 70
 #define NUM_CELLS (DIVISIONS*DIVISIONS)
-#define COLL_COFFICIENT 0.99f
+#define COLL_COFFICIENT (0.95f)
+
 
 void collision_setup(void);
 void collision_del(void);

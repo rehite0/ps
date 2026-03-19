@@ -6,6 +6,7 @@
 #include "collision.h"
 #include "pse_const.h"
 
+int num_coll=0;
 static BALL **mesh=NULL;
 static int *len_list=NULL;
 static int *size_list=NULL;
@@ -44,6 +45,7 @@ static inline int resolve_logic(BALL a,BALL b)
 		,ball_buff.posy[a]-ball_buff.posy[b]};
 	float dist=axis[0]*axis[0]+axis[1]*axis[1];
 	float rad_sum=ball_buff.rad[a]+ball_buff.rad[b];
+
 	if(dist>rad_sum*rad_sum) return 0;
 	float delta,norm_factor;
 	dist=sqrtf(dist);
@@ -52,14 +54,17 @@ static inline int resolve_logic(BALL a,BALL b)
 	else if((ball_buff.flag[b]&NO_CONSTRAIN)!=NO_CONSTRAIN) ;
 	else delta*=0.5f;
 	norm_factor=1.0f/dist;
+
 	assert(!isnan(norm_factor));
 	assert(!isinf(norm_factor));
+
 	float va_vb[2]={
 		ball_buff.posx[a]-ball_buff.posx[b]
 		-ball_buff.pposx[a]+ball_buff.pposx[b]
 	,	ball_buff.posy[a]-ball_buff.posy[b]
 		-ball_buff.pposy[a]+ball_buff.pposy[b]
 	};
+
 	float va_[2]={
 		ball_buff.posx[a]-ball_buff.pposx[a]
 	-(	(va_vb[0]*axis[0]+va_vb[1]*axis[1])
@@ -72,8 +77,8 @@ static inline int resolve_logic(BALL a,BALL b)
 	};
 
 	if((ball_buff.flag[a]&NO_CONSTRAIN)!=NO_CONSTRAIN){
-		ball_buff.posx[a]+=axis[0]*norm_factor*delta;
-		ball_buff.posy[a]+=axis[1]*norm_factor*delta;
+		ball_buff.posx[a]+=(axis[0]*delta)*norm_factor;
+		ball_buff.posy[a]+=(axis[1]*delta)*norm_factor;
 
 		ball_buff.pposx[a]=ball_buff.posx[a]-va_[0];
 		ball_buff.pposy[a]=ball_buff.posy[a]-va_[1];
@@ -89,13 +94,89 @@ static inline int resolve_logic(BALL a,BALL b)
 		*(-1.0f)*axis[1]*norm_factor*norm_factor
 	)*(0.5f*(1.0f+COLL_COFFICIENT))
 	};
+
 	if((ball_buff.flag[b]&NO_CONSTRAIN)!=NO_CONSTRAIN){
-		ball_buff.posx[b]-=axis[0]*norm_factor*delta;
-		ball_buff.posy[b]-=axis[1]*norm_factor*delta;
+		ball_buff.posx[b]-=(axis[0]*delta)*norm_factor;
+		ball_buff.posy[b]-=(axis[1]*delta)*norm_factor;
 
 		ball_buff.pposx[b]=ball_buff.posx[b]-vb_[0];
 		ball_buff.pposy[b]=ball_buff.posy[b]-vb_[1];
 	}
+
+	#if log_coll_no
+	src_buff.coll_no[a]++;
+	src_buff.coll_no[b]++;
+	#endif
+	num_coll++;
+	return 1;
+}
+static inline int resolve_logic_dp(BALL a,BALL b)	//double precision collision resolution
+{
+	if(a==b) return 0;
+	if((ball_buff.flag[a]&NO_COLLISION)==NO_COLLISION) return 0;
+	if((ball_buff.flag[b]&NO_COLLISION)==NO_COLLISION) return 0;
+	double axis[2]={ball_buff.posx[a]-ball_buff.posx[b]
+		,ball_buff.posy[a]-ball_buff.posy[b]};
+	double dist=axis[0]*axis[0]+axis[1]*axis[1];
+	double rad_sum=ball_buff.rad[a]+ball_buff.rad[b];
+
+	if(dist>rad_sum*rad_sum) return 0;
+	double delta,norm_factor;
+	dist=sqrt(dist);
+	delta=(rad_sum-dist);
+	if((ball_buff.flag[a]&NO_CONSTRAIN)!=NO_CONSTRAIN);
+	else if((ball_buff.flag[b]&NO_CONSTRAIN)!=NO_CONSTRAIN) ;
+	else delta*=0.5;
+	norm_factor=1.0/dist;
+
+	assert(!isnan(norm_factor));
+	assert(!isinf(norm_factor));
+
+	double va_vb[2]={
+		ball_buff.posx[a]-ball_buff.posx[b]
+		-ball_buff.pposx[a]+ball_buff.pposx[b]
+	,	ball_buff.posy[a]-ball_buff.posy[b]
+		-ball_buff.pposy[a]+ball_buff.pposy[b]
+	};
+
+	double va_[2]={
+		ball_buff.posx[a]-ball_buff.pposx[a]
+	-(	(va_vb[0]*axis[0]+va_vb[1]*axis[1])
+		*axis[0]*norm_factor*norm_factor
+	)*(0.5*(1.0+COLL_COFFICIENT))
+	,	ball_buff.posy[a]-ball_buff.pposy[a]
+	-(	(va_vb[0]*axis[0]+va_vb[1]*axis[1])
+		*axis[1]*norm_factor*norm_factor
+	)*(0.5*(1.0+COLL_COFFICIENT))
+	};
+
+	if((ball_buff.flag[a]&NO_CONSTRAIN)!=NO_CONSTRAIN){
+		ball_buff.posx[a]+=(float)((axis[0]*delta)*norm_factor);
+		ball_buff.posy[a]+=(float)((axis[1]*delta)*norm_factor);
+
+		ball_buff.pposx[a]=(float)((double)ball_buff.posx[a]-va_[0]);
+		ball_buff.pposy[a]=(float)((double)ball_buff.posy[a]-va_[1]);
+	}
+
+	double  vb_[2]={
+		ball_buff.posx[b]-ball_buff.pposx[b]
+	-(	(va_vb[0]*axis[0]+va_vb[1]*axis[1])
+		*(-1.0)*axis[0]*norm_factor*norm_factor
+	)*(0.5*(1.0+COLL_COFFICIENT))
+	,	ball_buff.posy[b]-ball_buff.pposy[b]
+	-(	(va_vb[0]*axis[0]+va_vb[1]*axis[1])
+		*(-1.0)*axis[1]*norm_factor*norm_factor
+	)*(0.5*(1.0+COLL_COFFICIENT))
+	};
+
+	if((ball_buff.flag[b]&NO_CONSTRAIN)!=NO_CONSTRAIN){
+		ball_buff.posx[b]-=(float)((axis[0]*delta)*norm_factor);
+		ball_buff.posy[b]-=(float)((axis[1]*delta)*norm_factor);
+
+		ball_buff.pposx[b]=(float)((double)ball_buff.posx[b]-vb_[0]);
+		ball_buff.pposy[b]=(float)((double)ball_buff.posy[b]-vb_[1]);
+	}
+
 	#if log_coll_no
 	src_buff.coll_no[a]++;
 	src_buff.coll_no[b]++;
@@ -127,7 +208,7 @@ void collision_del(void)
 	free(size_list);
 }
 void collision_register(BALL start,BALL stop)
-{//fix box issue
+{
 	int xo,xm,yo,ym;
 	xo=xm=yo=ym=0;
 

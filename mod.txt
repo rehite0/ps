@@ -1,0 +1,4 @@
+30,56:pse.c	change substep,num_ball
+31:pse_const.h	change min_radius&vtick_time
+4,6:pse_const.h	change coll_cofficient,division
+
