@@ -1,6 +1,7 @@
 #pragma once
 #define vtick_time ((1.0f/60.0f))
 #define tred 15
+#define SUB_STEPS 1
 #define MAX_SIZE ((int)1E6)
 
 #define	DEFAULT		(0l)
@@ -29,5 +30,5 @@ extern struct ball_bufft ball_buff;
 extern struct src_bufft src_buff;
 extern BALL MOUSE_BALL;
 extern int num_coll;
-#define MIN_RADIUS 0.0085f
-#define log_coll_no 1
+#define MIN_RADIUS 0.004f
+#define log_coll_no 0

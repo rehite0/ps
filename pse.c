@@ -27,7 +27,7 @@ void pse_setup(void){
 	     ,(DEFAULT|NO_DISPLAY|NO_COLLISION|NO_CONSTRAIN|NO_FORCE)
 	     , 1.0, 1., 0., 1.);
 	//generate_random(MAX_SIZE-101,MIN_RADIUS/10.0f);
-	generate_random(5000,MIN_RADIUS);
+	generate_random(20000,MIN_RADIUS);
 	par_setup();
 }
 

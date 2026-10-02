@@ -14,10 +14,12 @@ void par_update(float v_ss_tick_time){
 	apply_motion(0, ball_buff.len,v_ss_tick_time);
 	apply_constrains(0, ball_buff.len,v_ss_tick_time);
 	
-	collision_register(0,ball_buff.len);
-	collision_detect(0,ball_buff.len);
-	collision_reset();
-	apply_constrains(0, ball_buff.len,v_ss_tick_time);
+	for(int i=0;i<SUB_STEPS;++i){
+		collision_register(0,ball_buff.len);
+		collision_detect();
+		collision_reset();
+		apply_constrains(0, ball_buff.len,v_ss_tick_time);
+	}
 }
 void par_del(void){
 	collision_del();
